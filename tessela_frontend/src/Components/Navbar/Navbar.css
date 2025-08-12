@@ -1,0 +1,72 @@
+.navbar {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* padding: 8px; Reduced from 24px to 8px */
+}
+
+nav ul {
+    margin-right: 30px;
+    padding-top: 10px;
+}
+
+nav ul li {
+    list-style-type: none;
+    display: inline-block;
+    padding: 5px 10px; /* Reduced padding for smaller height */
+}
+
+.logo {
+    padding-top: 10px;
+    margin-left: 50px;
+    font-family: Merriweather;
+    font-size: 32px; /* Smaller logo text */
+}
+
+.logo-icon {
+    font-size: 24px;
+}
+
+.second-navbar {
+    background: white;
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin: 0;   /* removes default top & bottom margin */
+    padding: 8px 0; /* optional: adds even spacing */
+}
+
+.second-navbar li a {
+    position: relative; 
+    font-size: 18px;
+    font-family: Merriweather;
+    color: black;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 40px;
+}
+
+.second-navbar li a::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: black;
+    transition: width 0.3s ease;
+}
+
+.second-navbar li a:hover::before {
+    width: 100%;
+}
+
+
+
+
+
+
