@@ -21,12 +21,18 @@ nav ul li {
     padding-top: 10px;
     margin-left: 50px;
     font-family: Merriweather;
-    font-size: 32px; /* Smaller logo text */
 }
 
 .logo-icon {
-    font-size: 24px;
+    font-size: 20px;
+    color: black;
+    transition: color 0.3 ease;
 }
+
+.logo-icon:hover {
+    color: #521C0D;
+}
+
 
 .second-navbar {
     background: white;
@@ -57,7 +63,7 @@ nav ul li {
     left: 0;
     width: 0;
     height: 2px;
-    background: black;
+    background: #A86523;
     transition: width 0.3s ease;
 }
 
