@@ -3,7 +3,6 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    /* padding: 8px; Reduced from 24px to 8px */
 }
 
 nav ul {
@@ -18,8 +17,10 @@ nav ul li {
 }
 
 .logo {
-    padding-top: 10px;
-    margin-left: 50px;
+    margin-top: 10px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     font-family: Merriweather;
 }
 
