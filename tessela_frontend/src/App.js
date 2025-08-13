@@ -8,7 +8,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/inabel" element={<Inabel />} />
+        <Route path="/inabelExplore" element={<Inabel />} />
       </Routes>
     </BrowserRouter>
   );
