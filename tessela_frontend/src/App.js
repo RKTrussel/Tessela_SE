@@ -11,7 +11,8 @@ function App() {
     <div>
         <Background />
         <Navbar /> 
-        <SecondNavbar />    
+        <SecondNavbar />
+        <Hero/>    
     </div>
   );
 }

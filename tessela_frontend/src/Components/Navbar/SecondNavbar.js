@@ -6,7 +6,7 @@ const SecondNavbar = () => {
         <>
             <nav>
                 <ul className="second-navbar">
-                    <li><Link to="#">Inabel</Link></li>
+                    <li><Link to="/inabel">Inabel</Link></li>
                     <li><Link to="/ikat">Ikat</Link></li>
                     <li><Link to="/kalinga">Kalinga</Link></li>
                 </ul>

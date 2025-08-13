@@ -1,0 +1,33 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+  color: white;
+  padding: 0 1rem;
+  font-family: Merriweather;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0, 0.5);
+    z-index: -1;
+}
+
+.hero h1 {
+  font-size: 7rem;
+  font-weight: 700;
+}
+
+.hero h2 {
+  font-size: 3rem;
+  font-weight: 400;
+  margin-top: 0.1rem; /* small gap */
+  color: #fff;
+}
