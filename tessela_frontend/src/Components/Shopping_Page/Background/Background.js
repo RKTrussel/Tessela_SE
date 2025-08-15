@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import BackgroundPicture from '../../Assets/BackgroundPicture.jpg';
+import BackgroundPicture from '../../../Assets/BackgroundPicture.jpg';
 import './Background.css';
 
 const Background = () => {
