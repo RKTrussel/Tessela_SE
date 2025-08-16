@@ -1,9 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from './Components/Shopping_Page/Home_Page/homePage';
-import Explore from './Components/Explore_Page/exploreContainer';
-import ItemContainer from './Components/Item_Page/itemContainer';
-import LoginRegisterContainer from './Components/Shopping_Page/Login_Register_Page/LRContainer';
+import Explore from './Components/Shopping_Page/Containers/exploreContainer';
+import ItemContainer from './Components/Shopping_Page/Containers/itemContainer';
+import LoginRegisterContainer from './Components/Shopping_Page/Containers/LRContainer';
+
+import DashboardContainer from './Components/Sellers_Page/Containers/dashboardContainer';
+import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
 
 function App() {
   return (
@@ -11,10 +14,13 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login_register" element={<LoginRegisterContainer />} />
-        {/* Route for explore not yet done  */}
         <Route path="/explore/:id" element={<Explore />} />
-        {/* Route for items not yet done  */}
         <Route path="/product/:id" element={<ItemContainer />} />
+
+        {/* Sellers Page */}
+        <Route path="/dashboard" element={<DashboardContainer />} />
+        <Route path="/add-product" element={<ProductAddContainer />} />
+        
       </Routes>
     </BrowserRouter>
   );

@@ -1,9 +1,9 @@
 import Navbar from '../Navbar/Navbar';
 import SecondNavbar from '../Navbar/SecondNavbar';
-import ExploreStory from './exploreStory';
-import ExploreImage from './exploreImage';
-import ExploreNavbar from './exploreNavbar';
-import Explore from './exploreArea';
+import ExploreStory from '../Explore_Page/exploreStory';
+import ExploreImage from '../Explore_Page/exploreImage';
+import ExploreNavbar from '../Explore_Page/exploreNavbar';
+import Explore from '../Explore_Page/exploreArea';
 
 function ExploreContainer() {
     return (

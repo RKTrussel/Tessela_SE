@@ -1,8 +1,8 @@
 import Row from 'react-bootstrap/esm/Row';
 import Navbar from '../Navbar/Navbar';
 import SecondNavbar from '../Navbar/SecondNavbar';
-import ImagePreview from './imagePreview';
-import ItemDetails from './itemDetails';
+import ImagePreview from '../Item_Page/imagePreview';
+import ItemDetails from '../Item_Page/itemDetails';
 
 import Container from 'react-bootstrap/Container';
 

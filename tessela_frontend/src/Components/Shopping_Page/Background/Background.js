@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
 import BackgroundPicture from '../../../Assets/BackgroundPicture.jpg';
 import './Background.css';
 
 const Background = () => {
     return(
-        <img src={BackgroundPicture} className='background' />
+        <img src={BackgroundPicture} alt='ESL' className='background' />
     )
 };
 

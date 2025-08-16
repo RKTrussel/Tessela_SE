@@ -1,6 +1,6 @@
 import Navbar from "../Navbar/Navbar";
 import SecondNavbar from "../Navbar/SecondNavbar";
-import LoginRegisterComponent from "./LRComponent";
+import LoginRegisterComponent from "../Login_Register_Page/LRComponent";
 
 function LoginRegisterContainer() {
     return (
