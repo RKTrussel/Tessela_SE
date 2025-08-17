@@ -50,7 +50,7 @@ function SideNavbar() {
                     <div>
                         <div className="list-group w-100 mt-2">
                             <button type="button" className="list-group-item list-group-item-action text-start">My Products</button>
-                            <button type="button" className="list-group-item list-group-item-action text-start">Add New Product</button>
+                            <button type="button" className="list-group-item list-group-item-action text-start ">Add New Product</button>
                         </div>
                     </div>
                 </Collapse>
