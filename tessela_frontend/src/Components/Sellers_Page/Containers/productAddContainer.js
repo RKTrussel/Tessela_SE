@@ -1,4 +1,4 @@
-import TopCustomNav from "../Product_add/topCustomNav";
+import { TopCustomNav } from "../Product_add/topCustomNav";
 import ItemAddInfo from "../Product_add/itemAddInfo";
 
 export default function ProductAddContainer() {

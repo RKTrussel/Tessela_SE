@@ -6,7 +6,8 @@ import Explore from './Components/Shopping_Page/Containers/exploreContainer';
 import ItemContainer from './Components/Shopping_Page/Containers/itemContainer';
 import LoginRegisterContainer from './Components/Shopping_Page/Containers/LRContainer';
 
-import DashboardContainer from './Components/Sellers_Page/Containers/dashboardContainer';
+import { DashboardContainer, MyOrderContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
+import MyProductContainer from "./Components/Sellers_Page/Containers/myProductContainer";
 import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
 
 import AuthContainer from './Components/Auth/Container/AuthContainer';
@@ -26,7 +27,9 @@ function App() {
 
         {/* Sellers Page */}
         <Route path="/dashboard" element={<DashboardContainer />} />
-        <Route path="/add-product" element={<ProductAddContainer />} />
+        <Route path="/dashboard/myOrder" element={<MyOrderContainer />} />
+        <Route path="/dashboard/myProduct" element={<MyProductContainer />} />
+        <Route path="/dashboard/myProduct/addProduct" element={<ProductAddContainer />} />
         
       </Routes>
     </BrowserRouter>
