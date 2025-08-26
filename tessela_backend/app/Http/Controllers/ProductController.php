@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -40,5 +41,49 @@ class ProductController extends Controller
         }
 
         return response()->json($product->load('images'), 201);
+    }
+
+    public function index(Request $request)
+    {
+        $q = Product::with('images')->latest('id');
+
+        if ($s = $request->query('search')) {
+            $q->where(function($x) use ($s) {
+                $x->where('name','like',"%{$s}%")
+                ->orWhere('category','like',"%{$s}%")
+                ->orWhere('barcode_value','like',"%{$s}%");
+            });
+        }
+
+        if ($c = $request->query('category')) {
+            $q->where('category', $c);
+        }
+
+        $products = $q->paginate((int) $request->query('per_page', 10));
+
+        // Give each image a public URL
+        $products->getCollection()->transform(function ($p) {
+            $p->images->transform(function ($img) {
+                $img->url = asset('storage/'.$img->path); // needs `php artisan storage:link`
+                return $img;
+            });
+            return $p;
+        });
+
+        return response()->json($products);
+    }
+
+    public function destroy(Product $product)
+    {
+        // Delete associated images first (optional, depending on your needs)
+        foreach ($product->images as $image) {
+            // Delete image file from storage
+            Storage::disk('public')->delete($image->path);
+        }
+
+        // Delete the product itself
+        $product->delete();
+
+        return response()->json(['message' => 'Product and its images deleted successfully']);
     }
 }
