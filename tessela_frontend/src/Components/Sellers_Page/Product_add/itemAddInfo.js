@@ -181,7 +181,7 @@ export default function ItemAddInfo() {
                   required
                 >
                   <option value="New">New</option>
-                  <option value="used">Used</option>
+                  <option value="Used">Used</option>
                 </Form.Select>
               </Form.Group>
             </section>

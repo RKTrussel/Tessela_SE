@@ -95,9 +95,9 @@ export default function useItemAddInfo() {
 
     try {
         const res = await api.post("/products", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
         });
         console.log("Saved product:", res.data);
         setSubmitted(true);

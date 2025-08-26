@@ -1,7 +1,4 @@
-import Table from "react-bootstrap/Table";
-import Button from "react-bootstrap/Button";
-import ProgressBar from "react-bootstrap/ProgressBar";
-import Pagination from "react-bootstrap/Pagination";
+import { Button, Table, ProgressBar, Pagination, Spinner, Alert } from "react-bootstrap";
 
 export default function ProductsTable({
   rows,
@@ -11,7 +8,7 @@ export default function ProductsTable({
   lastPage,
   onPrev,
   onNext,
-  onEdit,
+  onEdit,  // The edit function passed from the parent component
   onDelete,
   deletingId,
 }) {
@@ -30,19 +27,37 @@ export default function ProductsTable({
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={6} className="text-center py-5">Loading…</td></tr>
+            <tr>
+              <td colSpan={6} className="text-center py-5">
+                <Spinner animation="border" variant="primary" />
+                <p>Loading products...</p>
+              </td>
+            </tr>
           ) : error ? (
-            <tr><td colSpan={6} className="text-center py-5 text-danger">{error}</td></tr>
+            <tr>
+              <td colSpan={6} className="text-center py-5">
+                <Alert variant="danger">
+                  <strong>Error:</strong> {error}
+                </Alert>
+                <Button variant="outline-primary" onClick={() => onPrev()}>
+                  Retry
+                </Button>
+              </td>
+            </tr>
           ) : rows.length === 0 ? (
             <tr>
               <td colSpan={6} className="text-center py-5 text-muted">
-                <div><div style={{ fontSize: "48px" }}>📦</div>No Product Found</div>
+                <div>
+                  <div style={{ fontSize: "48px" }}>📦</div>
+                  No Products Found
+                </div>
               </td>
             </tr>
           ) : (
             rows.map((p) => {
               const quality = Number(p.content_quality ?? 0);
-              const variant = quality >= 80 ? "success" : quality >= 50 ? "warning" : "danger";
+              const variant =
+                quality >= 80 ? "success" : quality >= 50 ? "warning" : "danger";
               return (
                 <tr key={p.id}>
                   <td>
@@ -74,7 +89,7 @@ export default function ProductsTable({
                       size="sm"
                       variant="outline-primary"
                       className="me-2"
-                      onClick={() => onEdit(p.id)}
+                      onClick={() => onEdit(p.id)}  // Trigger onEdit function
                     >
                       Update
                     </Button>
@@ -94,6 +109,7 @@ export default function ProductsTable({
         </tbody>
       </Table>
 
+      {/* Pagination */}
       {rows.length > 0 && (
         <div className="d-flex justify-content-end">
           <Pagination className="mb-0">
