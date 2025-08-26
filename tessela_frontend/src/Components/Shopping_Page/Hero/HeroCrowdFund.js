@@ -1,18 +1,18 @@
 import './Hero.css';
 
-const Hero = () => {
+const HeroCrowdFund = () => {
     return (
         <>
             <div className='hero-overlay'></div>
-            <div className='hero'>
+            <div className='hero'> 
                 <div>
-                    <h1>Empowering Artisans</h1>
+                    <h1>Hello Crowd Fund</h1>
                     <h2>Connecting the World.</h2>
                 </div>
             </div>
-        
+
         </>
     )
 };
 
-export default Hero;
+export default HeroCrowdFund;

@@ -1,17 +1,39 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Background from '../Background/Background';
-import Navbar from '../Navbar/Navbar';
-import Hero from '../Hero/Hero'
+
+import { Carousel } from 'react-bootstrap';
 
 import SecondNavbar from '../Navbar/SecondNavbar';
+import Navbar from '../Navbar/Navbar';
+
+import Background from '../Background/Background';
+import Hero from '../Hero/Hero'
+import HeroBlog from '../Hero/HeroBlog';
+import HeroMarket from '../Hero/HeroMarket'; 
+import HeroCrowdFund from '../Hero/HeroCrowdFund';
+
+import "./HomePage.css";
 
 function homePage() {
   return (
     <div>
-        <Background />
+         <Background />
         <Navbar /> 
         <SecondNavbar />
-        <Hero />    
+          <Carousel indicators={false}>
+            <Carousel.Item>
+              <Hero />
+            </Carousel.Item>
+            <Carousel.Item>
+              <HeroMarket />
+            </Carousel.Item>
+            <Carousel.Item>
+              <HeroBlog />
+            </Carousel.Item>
+            <Carousel.Item>
+              <HeroCrowdFund />
+            </Carousel.Item>
+          </Carousel>
+          <div className="dimming-div"> </div>
     </div>
   );
 }
