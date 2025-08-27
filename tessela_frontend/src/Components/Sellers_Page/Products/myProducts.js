@@ -121,7 +121,8 @@ export default function MyProducts() {
     try {
       const response = await api.post(`/products/${productId}`, form, {
         headers: {
-          "Content-Type": "multipart/form-data", // Axios handles it
+          // "Content-Type: multipart/form-data" not supported on PUT; use _method='PUT' in FormData instead
+          "Content-Type": "multipart/form-data", 
         },
       });
       console.log("Updated Product Response:", response.data);
@@ -140,7 +141,7 @@ export default function MyProducts() {
       <h4 className="mb-3">My Products</h4>
 
       {/* Add Product Button */}
-      <ProductsToolbar onAdd={() => navigate("/dashboard/myProduct")} />
+      <ProductsToolbar onAdd={() => navigate("/dashboard/myProduct/addProduct")} />
 
       {/* Filters Component */}
       <ProductsFilters

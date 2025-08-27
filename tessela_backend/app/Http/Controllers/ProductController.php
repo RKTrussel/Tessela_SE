@@ -45,10 +45,11 @@ class ProductController extends Controller
         return response()->json($product->load('images'), 201);
     }
 
-    public function index(Request $request)
+   public function index(Request $request)
     {
-        $q = Product::with('images')->latest('id');
+        $q = Product::with('images');
 
+        // Search filter
         if ($s = $request->query('search')) {
             $q->where(function($x) use ($s) {
                 $x->where('name','like',"%{$s}%")
@@ -57,16 +58,27 @@ class ProductController extends Controller
             });
         }
 
+        // Category filter
         if ($c = $request->query('category')) {
             $q->where('category', $c);
         }
 
+        // Sorting
+        if ($sort = $request->query('sort')) {
+            // Expected format: price_asc, price_desc, name_asc, name_desc
+            [$field, $direction] = explode('_', $sort);
+            $q->orderBy($field, $direction);
+        } else {
+            $q->latest('id'); // Default fallback
+        }
+
+        // Pagination
         $products = $q->paginate((int) $request->query('per_page', 10));
 
-        // Give each image a public URL
+        // Transform images URLs
         $products->getCollection()->transform(function ($p) {
             $p->images->transform(function ($img) {
-                $img->url = asset('storage/'.$img->path); // needs `php artisan storage:link`
+                $img->url = asset('storage/'.$img->path);
                 return $img;
             });
             return $p;
@@ -75,7 +87,6 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-    
     public function show($id)
     {
         $product = Product::with('images')->find($id);

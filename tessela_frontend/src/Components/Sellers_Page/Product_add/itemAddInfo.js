@@ -112,10 +112,9 @@ export default function ItemAddInfo() {
                   required
                 >
                   <option value="">Please set category</option>
-                  <option>Fashion</option>
-                  <option>Electronics</option>
-                  <option>Home</option>
-                  <option>Beauty</option>
+                  <option>Inabel</option>
+                  <option>Ikat</option>
+                  <option>Kalinga</option>
                 </Form.Select>
               </Form.Group>
 

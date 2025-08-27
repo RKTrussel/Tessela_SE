@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Navbar from '../Navbar/Navbar';
 import SecondNavbar from '../Navbar/SecondNavbar';
 import ExploreStory from '../Explore_Page/exploreStory';
@@ -6,6 +7,8 @@ import ExploreNavbar from '../Explore_Page/exploreNavbar';
 import Explore from '../Explore_Page/exploreArea';
 
 function ExploreContainer() {
+    const [sort, setSort] = useState('default'); // Track current sort option
+
     return (
         <>
             <Navbar />
@@ -15,9 +18,11 @@ function ExploreContainer() {
             <hr />
             <ExploreStory />
             <hr />
-            <ExploreNavbar />
+            {/* Pass sort state and setter to ExploreNavbar */}
+            <ExploreNavbar sort={sort} setSort={setSort} />
             <hr />
-            <Explore />
+            {/* Pass current sort to ExploreArea */}
+            <Explore sort={sort} />
         </>
     );
 }

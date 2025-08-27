@@ -19,7 +19,7 @@ function App() {
         {/* Shopping Page */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login_register" element={<LoginRegisterContainer />} />
-        <Route path="/explore/:id" element={<Explore />} />
+        <Route path="/explore/:category" element={<Explore />} />
         <Route path="/product/:id" element={<ItemContainer />} />
 
         {/* Auth Page */}
