@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+
+class Admin extends Account
+{
+    protected $table = 'accounts';
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('admin', function ($query) {
+            $query->where('role', 'admin');
+        });
+
+        static::creating(function ($model) {
+            $model->role = 'admin';
+        });
+    }
+
+
+    /**
+     * Create a new blog post.
+     *
+     * @param string $title
+     * @return void
+     */
+    public function createBlog(Blog $blog): void
+    {
+        $blog->created_by = $this->id;
+        $blog->save();
+    }
+
+
+    /**
+     * Delete a blog post.
+     *
+     * @param int $id
+     * @return void
+     */
+    public function deleteBlog($blogId): void
+    {
+        Blog::destroy($blogId);
+    }
+
+    /**
+     * Update a blog post.
+     *
+     * @param Blog $blog
+     * @return void
+     */
+    public function updateBlog(Blog $blog): void
+    {
+        $existingBlog = Blog::find($blog->blogId);
+
+        if ($existingBlog) {
+            $existingBlog->update($blog->toArray());
+        }
+    }
+
+}
