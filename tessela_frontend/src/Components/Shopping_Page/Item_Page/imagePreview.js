@@ -1,16 +1,11 @@
-import { useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import api from '../../../api';
 import Col from 'react-bootstrap/Col';
 
-import Picture from './cathethiya.jpg';
-import Try from './try.jpg';
-
-const images = [
-    Picture,
-    Try,
-    Try, 
-];
-
 function ImagePreview() {
+    const { id } = useParams();  // Get product ID from URL
+    const [images, setImages] = useState([]);
     const imageRefs = useRef([]);
 
     const handleClick = (idx) => {
@@ -19,12 +14,25 @@ function ImagePreview() {
         }
     };
 
+    useEffect(() => {
+        const fetchProductImages = async () => {
+            try {
+                const response = await api.get(`/products/${id}`);  // Assuming images are included in the product data
+                setImages(response.data.images);  // Extract images from the product data
+            } catch (error) {
+                console.error('Error fetching product images:', error);
+            }
+        };
+
+        fetchProductImages();
+    }, [id]);  // Refetch images when `id` changes
+
     return (
         <>
             <Col xs={1} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px', 
                 position: 'sticky', top: '20px', zIndex: 2, alignSelf: 'flex-start' }}>
                 {images.map((img, idx) => (
-                    <img key={idx} src={img} alt={`Preview ${idx}`} style={{ maxWidth: '80px', marginBottom: '10px', 
+                    <img key={idx} src={img.url} alt={`Preview ${idx}`} style={{ maxWidth: '80px', marginBottom: '10px', 
                         cursor: 'pointer', border: '2px solid transparent', maxHeight: '80px', background: '#fff' }} onClick={() => handleClick(idx)} />
                 ))}
             </Col>
@@ -32,7 +40,7 @@ function ImagePreview() {
                 alignContent: 'center' }}>
                 {images.map((img, idx) => (
                     <div key={idx}>
-                        <img ref={el => imageRefs.current[idx] = el} src={img} alt={`Big preview ${idx}`}
+                        <img ref={el => imageRefs.current[idx] = el} src={img.url} alt={`Big preview ${idx}`}
                             style={{ maxWidth: '500px', maxHeight: '500px', objectFit: 'contain', display: 'block' }}
                         />
                     </div>

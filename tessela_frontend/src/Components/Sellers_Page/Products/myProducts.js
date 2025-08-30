@@ -184,13 +184,6 @@ export default function MyProducts() {
         />
       )}
 
-      {/* No Products Found */}
-      {!loading && !err && rows.length === 0 && (
-        <div className="text-center my-5">
-          <p>No products found.</p>
-        </div>
-      )}
-
       {/* Modal for Editing Product */}
       <Modal show={editModalOpen} onHide={() => setEditModalOpen(false)}>
         <Modal.Header closeButton>

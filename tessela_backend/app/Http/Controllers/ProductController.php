@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
-    public function store(Request $request)
+    public function addItem(Request $request)
     {
         $data = $request->validate([
             'name'           => ['required','string','max:255'],
@@ -24,7 +24,7 @@ class ProductController extends Controller
             'barcode_value'  => ['required','string','max:64','unique:products,barcode_value'],
 
             // here we expect real files
-            'images.*'       => ['file','image','max:2048'],
+            'images.*'       => ['file','image','max:10240'],
         ]);
 
         $data['barcode_type'] = $data['barcode_type'] ?? 'CODE128';
@@ -45,7 +45,7 @@ class ProductController extends Controller
         return response()->json($product->load('images'), 201);
     }
 
-   public function index(Request $request)
+   public function indexItem(Request $request)
     {
         $q = Product::with('images');
 
@@ -87,19 +87,23 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-    public function show($id)
+    public function getItem($id)
     {
         $product = Product::with('images')->find($id);
-        
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
-        
+
+        // Ensure that the image paths are full URLs
+        $product->images->transform(function ($img) {
+            $img->url = asset('storage/'.$img->path); // Ensuring it's a full URL
+            return $img;
+        });
+
         return response()->json($product);
     }
 
-
-    public function update(Request $request, Product $product)
+    public function updateItem(Request $request, Product $product)
     {
         Log::info('Incoming Request Data:', $request->all());
         try {
@@ -147,7 +151,7 @@ class ProductController extends Controller
         return response()->json($product->load('images'), 200);
     }
 
-    public function destroy(Product $product)
+    public function deleteItem(Product $product)
     {
         // Delete associated images first (optional, depending on your needs)
         foreach ($product->images as $image) {

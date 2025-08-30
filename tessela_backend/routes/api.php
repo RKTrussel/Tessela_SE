@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,8 +20,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/products', [ProductController::class, 'store']);
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::put('/products/{product}', [ProductController::class, 'update']);
-Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+Route::post('/products', [ProductController::class, 'addItem']);
+Route::get('/products', [ProductController::class, 'indexItem']);
+Route::get('/products/{id}', [ProductController::class, 'getItem']);
+Route::put('/products/{product}', [ProductController::class, 'updateItem']);
+Route::delete('/products/{product}', [ProductController::class, 'destroyItem']);
+
+Route::get('/cart', [CartController::class, 'show']);
+Route::post('/cart/add/{itemId}', [CartController::class, 'addItem']);
+Route::post('/cart/remove/{itemId}', [CartController::class, 'removeItem']);
+Route::post('/cart/clear', [CartController::class, 'clear']);

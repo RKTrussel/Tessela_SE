@@ -23,6 +23,13 @@ abstract class Account extends Model
         'password',
     ];
 
+    // Relationship with Cart model
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'account_id', 'account_id');
+    }
+
+
     public static function login($email, $password): bool
     {
         return Auth::attempt(['email' => $email, 'password' => $password]);

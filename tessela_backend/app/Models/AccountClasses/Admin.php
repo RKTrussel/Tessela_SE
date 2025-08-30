@@ -23,6 +23,8 @@ class Admin extends Account
         });
     }
 
+    
+
 
     /**
      * Create a new blog post.
