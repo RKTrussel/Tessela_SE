@@ -4,6 +4,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ProductImage;
+use App\Models\Cart;
 
 class Product extends Model
 {
@@ -17,6 +19,13 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany(ProductImage::class)->orderBy('order');
+    }
+
+    public function carts()
+    {
+        return $this->belongsToMany(Cart::class, 'cart_items', 'product_id', 'cart_id')
+                    ->withPivot('quantity')
+                    ->withTimestamps();
     }
 
     public function getContentQualityAttribute(): int

@@ -6,49 +6,87 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Cart;
 use App\Models\Item;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class CartController extends Controller
 {
-    // Show the user's current cart
     public function show()
     {
-        $user = Auth::user();
+        $cart = \App\Models\Cart::latest()
+            ->with(['products.images' => fn($q) => $q->orderBy('order')])
+            ->first();
 
-        $cart = $user->carts()->latest()->first();
-        $items = $cart ? $cart->items : collect();
+        if (!$cart) {
+            return response()->json([
+                'cart_id'     => null,
+                'total_price' => 0,
+                'items'       => [],
+            ]);
+        }
 
-        $total = $items->sum(function($item) {
-            return $item->price * $item->pivot->quantity;
+        $items = $cart->products->map(function ($p) {
+            $first = $p->images->first();
+            $imgUrl = $first?->url ?? ($first?->path ? asset('storage/'.$first->path) : null);
+
+            return [
+                'product_id' => $p->id,
+                'name'       => $p->name,
+                'price'      => (float) $p->price,
+                'quantity'   => (int) $p->pivot->quantity,
+                'subtotal'   => (float) ($p->price * $p->pivot->quantity),
+                'image_url'  => $imgUrl,
+            ];
+        })->values();
+
+        return response()->json([
+            'cart_id'     => $cart->getKey(),
+            'total_price' => (float) $cart->total_price,
+            'items'       => $items,
+        ]);
+    }
+    
+    public function addItem(Request $request)
+    {
+        $data = $request->validate([
+            'product_id' => 'required|integer|exists:products,id',
+            'quantity'   => 'nullable|integer|min:1',
+        ]);
+
+        $productId = (int) $data['product_id'];
+        $quantity  = (int) ($data['quantity'] ?? 1);
+
+        // One global cart
+        $cart = \App\Models\Cart::latest()->first()
+            ?? \App\Models\Cart::create(['total_price' => 0]);
+
+        DB::transaction(function () use ($cart, $productId, $quantity) {
+            $existing = $cart->products()->whereKey($productId)->first();
+            $newQty   = ($existing ? (int)$existing->pivot->quantity : 0) + $quantity;
+
+            $cart->products()->syncWithoutDetaching([$productId => ['quantity' => $newQty]]);
+
+            $cart->load('products');
+            $cart->total_price = $cart->products->sum(fn($p) => $p->price * $p->pivot->quantity);
+            $cart->save();
         });
 
-        return view('cart.index', compact('cart', 'items', 'total'));
-    }
+        $cart->load('products');
 
-    // Add an item to cart
-    public function addItem(Request $request, $itemId)
-    {
-        $user = Auth::user();
-        $item = Item::findOrFail($itemId);
-
-        // Get or create a cart
-        $cart = $user->carts()->latest()->first();
-        if (!$cart) {
-            $cart = Cart::create([
-                'account_id' => $user->id,
-                'total_price' => 0
-            ]);
-        }
-
-        // Add item or increase quantity
-        if ($cart->items()->where('item_id', $itemId)->exists()) {
-            $cart->items()->updateExistingPivot($itemId, [
-                'quantity' => $cart->items()->where('item_id', $itemId)->first()->pivot->quantity + 1
-            ]);
-        } else {
-            $cart->items()->attach($itemId, ['quantity' => 1]);
-        }
-
-        return redirect()->back()->with('success', 'Item added to cart!');
+        return response()->json([
+            'message' => 'Item added to cart!',
+            'cart' => [
+                'cart_id'     => $cart->getKey(),
+                'total_price' => $cart->total_price,
+                'items'       => $cart->products->map(fn($p) => [
+                    'product_id' => $p->getKey(),
+                    'name'       => $p->name,
+                    'price'      => $p->price,
+                    'quantity'   => (int)$p->pivot->quantity,
+                    'subtotal'   => $p->price * $p->pivot->quantity,
+                ])->values(),
+            ],
+        ]);
     }
 
     // Remove an item from cart
