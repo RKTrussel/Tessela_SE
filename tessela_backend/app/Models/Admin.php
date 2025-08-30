@@ -10,22 +10,6 @@ class Admin extends Account
 {
     protected $table = 'accounts';
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::addGlobalScope('admin', function ($query) {
-            $query->where('role', 'admin');
-        });
-
-        static::creating(function ($model) {
-            $model->role = 'admin';
-        });
-    }
-
-    
-
-
     /**
      * Create a new blog post.
      *
@@ -37,7 +21,6 @@ class Admin extends Account
         $blog->created_by = $this->id;
         $blog->save();
     }
-
 
     /**
      * Delete a blog post.

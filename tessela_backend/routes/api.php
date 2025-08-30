@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,3 +31,7 @@ Route::get('/cart', [CartController::class, 'show']);
 Route::post('/cart/add/{itemId}', [CartController::class, 'addItem']);
 Route::post('/cart/remove/{itemId}', [CartController::class, 'removeItem']);
 Route::post('/cart/clear', [CartController::class, 'clear']);
+
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);

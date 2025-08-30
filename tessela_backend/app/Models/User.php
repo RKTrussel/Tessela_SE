@@ -14,20 +14,8 @@ class User extends Account
 
     protected $table = 'accounts';
 
-    protected static function boot()
-    {
-        parent::boot();
-        
-        // Auto-set role when creating users
-        static::creating(function ($model) {
-            $model->role = 'user';
-        });
-        
-        // Only fetch user records (not admin records)
-        static::addGlobalScope('user', function ($query) {
-            $query->where('role', 'user');
-        });
-    }
+
+
 
 
     // ------------------------------------
@@ -41,6 +29,12 @@ class User extends Account
     public function comments()
     {
         return $this->hasMany(Comment::class, 'userId');
+    }
+
+    // Relationship with Cart model
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'account_id', 'account_id');
     }
 
     // ------------------------------------

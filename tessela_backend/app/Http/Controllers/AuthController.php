@@ -13,64 +13,50 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:accounts',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:user,admin',
+            'name' => 'required|string',
+            'email' => 'required|email|unique:accounts',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:admin,user',
         ]);
 
-        if($validated['role'] === "Admin") {
-            $success = Admin::register(
-                $validated['name'],
-                $validated['email'],
-                $validated['password'],
-                'admin',
-            );
-        } else {
-            $success = User::register(
-                $validated['name'],
-                $validated['email'],
-                $validated['password'],
-                'user',
-            );
+        if (Account::register(
+            $validated['name'],
+            $validated['email'],
+            $validated['password'],
+            $validated['role']
+        )) {
+            return response()->json(['message' => 'Account created successfully']);
         }
 
-        if($success) {
-            return response()->json([
-                'message' => 'Registration successful',
-                'status' => 'success',
-            ], 201);
-        }
-
-        return response()->json([
-            'message' => 'Registration failed',
-            'status' => 'error',
-        ], 500);
+        return response()->json(['error' => 'Registration failed'], 500);
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+       $validated = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
-        ]);
+       ]);
 
-        if (Account::login($credentials['email'], $credentials['password'])) {
-            $user = Account::where('email', $credentials['email'])->first();
-            $token = $user->createToken('auth_token')->plainTextToken;
+       $account = Account::login($validated['email'], $validated['password']);
 
-            return response()->json([
-                'message' => 'Login successful',
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'status' => 'success',
-            ], 200);
-        }
+       if($account) {
+            if ($account instanceof Admin) {
+                return response()->json([
+                    'message' => 'Login successful',
+                    'user' => $account,
+                    'role' => 'admin',
+                ], 200);
+            } elseif ($account instanceof User) {
+                return response()->json([
+                    'message' => 'Login successful',
+                    'user' => $account,
+                    'role' => 'user',
+                ], 200);
+            }
+       }
 
-        return response()->json([
-            'message' => 'Invalid credentials',
-            'status' => 'error',
-        ], 401);
+       return response()->json(['error' => 'Invalid credentials'], 401);
     }
 
     public function logout(Request $request)
