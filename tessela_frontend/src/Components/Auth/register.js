@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Form, Button, Card, Alert, InputGroup, Row, Col } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
+import api from '../../api.js';
 
 export default function Register({ onSwitch, onRegister }) {
   const [form, setForm] = useState({
+    name: "",
     email: "",
     password: "",
-    name: "",
-    gender: "",
     birthday: { day: "", month: "", year: "" },
+    gender: "",
   });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,17 +26,32 @@ export default function Register({ onSwitch, onRegister }) {
     }
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setError("");
 
+    
     if (!form.email || !form.password || !form.name || !form.gender) {
       return setError("Please fill all required fields.");
     }
     if (form.password.length < 6) return setError("Password must be at least 6 characters.");
-
-    // mock success
-    onRegister?.(form);
+    
+    const submitForm = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      password: form.password.trim(),
+      birthday: `${form.birthday.year}-${form.birthday.month.padStart(2, '0')}-${form.birthday.day.padStart(2, '0')}`,
+      gender: form.gender.trim(),
+    }
+    try {
+      const response = await api.post("/register", submitForm);
+      if (response.status === 201) {
+        onRegister?.(form);
+      }
+    } catch (error) {
+      console.log(error);
+      setError("Registration failed. Please try again.");
+    }
   };
 
   return (

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Form, Button, Card, Alert, InputGroup } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons"; // install react-bootstrap-icons if needed
+import api from '../../api.js';
 
 export default function Login({ onSwitch, onLogin, onForgot }) {
   const [form, setForm] = useState({ email: "", password: "", remember: false });
@@ -15,11 +16,20 @@ export default function Login({ onSwitch, onLogin, onForgot }) {
     }));
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setError("");
     if (!form.email || !form.password) return setError("Please fill all fields.");
-    onLogin?.(form);
+
+    try {
+      const response = await api.post("/login", form);
+      if (response.status === 200) {
+        onLogin?.(form);
+        console.log(response.status);
+      }
+    } catch (error) {
+      setError("Login failed. Please try again.");
+    }
   };
 
   return (
@@ -60,26 +70,6 @@ export default function Login({ onSwitch, onLogin, onForgot }) {
             </Button>
           </InputGroup>
         </Form.Group>
-
-        {/* Forgot Password link + Remember me */}
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <Button
-            variant="link"
-            size="sm"
-            className="p-0"
-            onClick={() => onForgot ? onForgot(form.email) : void 0}
-          >
-            Forgot Password?
-          </Button>
-          <Form.Check
-            type="checkbox"
-            id="remember"
-            label="Keep me signed in"
-            name="remember"
-            checked={form.remember}
-            onChange={onChange}
-          />
-        </div>
 
         <Button type="submit" className="w-100">LOGIN</Button>
 

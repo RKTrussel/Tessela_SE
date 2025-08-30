@@ -16,16 +16,19 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:accounts',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:admin,user',
+            'birthday' => 'nullable|date',
+            'gender' => 'nullable|in:Male,Female',
         ]);
 
         if (Account::register(
             $validated['name'],
             $validated['email'],
             $validated['password'],
-            $validated['role']
+            $validated['birthday'],
+            $validated['gender'],
+            $validated['role'] = 'user',
         )) {
-            return response()->json(['message' => 'Account created successfully']);
+            return response()->json(['message' => 'Account created successfully'], 201);
         }
 
         return response()->json(['error' => 'Registration failed'], 500);
@@ -33,14 +36,14 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-       $validated = $request->validate([
+        $validated = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
-       ]);
+        ]);
 
-       $account = Account::login($validated['email'], $validated['password']);
+        $account = Account::login($validated['email'], $validated['password']);
 
-       if($account) {
+        if ($account) {
             if ($account instanceof Admin) {
                 return response()->json([
                     'message' => 'Login successful',
@@ -54,9 +57,10 @@ class AuthController extends Controller
                     'role' => 'user',
                 ], 200);
             }
-       }
+        }
 
-       return response()->json(['error' => 'Invalid credentials'], 401);
+return response()->json(['error' => 'Login failed'], 401);
+
     }
 
     public function logout(Request $request)

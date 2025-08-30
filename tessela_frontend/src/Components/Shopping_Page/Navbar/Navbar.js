@@ -12,7 +12,7 @@ const Navbar = () => {
             <h2 className='logo'>Tessela</h2>
             <ul>
                 <li>
-                    <Link to='/account'>
+                    <Link to='/auth'>
                         <FiUser className='logo-icon'/>
                     </Link>
                 </li>

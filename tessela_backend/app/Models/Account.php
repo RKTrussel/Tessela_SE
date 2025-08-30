@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
-abstract class Account extends Model
+class Account extends Model
 {
     use HasFactory;
 
     protected $table = 'accounts';
+    protected $primaryKey = 'account_id';
 
     protected $fillable = [
         'name',
@@ -45,28 +47,36 @@ abstract class Account extends Model
         $attributes = (array) $attributes;
 
         if (isset($attributes['role'])) {
-            $class = match ($attributes['role']) {
-                'admin' => Admin::class,
-                'user'  => User::class,
-                default => self::class,
-            };
-            return (new $class)->newFromBuilder($attributes, $connection);
+            if ($attributes['role'] === 'admin') {
+                $model = new Admin;
+            } else {
+                $model = new User;
+            }
+        } else {
+            $model = new static;
         }
 
-        return parent::newFromBuilder($attributes, $connection);
+        $model->exists = true;
+        $model->setRawAttributes($attributes, true);
+        $model->setConnection($connection ?: $this->getConnectionName());
+
+        return $model;
     }
 
-    public static function login(string $email, string $password): ?self
+    public static function login(string $email, string $password): ?Account
     {
-       $account = static::where('email', $email)->first();
+        
+        $row = DB::table('accounts')->where('email', $email)->first();
 
-       if($account && Hash::check($password, $account->password))
-        {
-            Auth::login($account);
-            return $account;
+        if (!$row || !Hash::check($password, $row->password)) {
+            return null;
         }
         
-       return null;
+        if ($row->role === 'admin') {
+            return Admin::find($row->account_id);
+        } else {
+            return User::find($row->account_id);
+        }
     }
 
     public static function register($name, $email, $password, $role): bool
