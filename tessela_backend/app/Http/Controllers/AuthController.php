@@ -8,6 +8,7 @@ use App\Models\Account;
 use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -43,36 +44,33 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $account = Account::login($validated['email'], $validated['password']);
+        $result = Account::login($validated['email'], $validated['password']);
 
-        if ($account) {
-            if ($account instanceof Admin) {
-                return response()->json([
-                    'message' => 'Login successful',
-                    'user' => $account,
-                    'role' => 'admin',
-                ], 200);
-            } elseif ($account instanceof User) {
-                return response()->json([
-                    'message' => 'Login successful',
-                    'user' => $account,
-                    'role' => 'user',
-                ], 200);
-            }
+        if ($result) {
+            $user  = $result['user'];
+            $token = $result['token'];
+
+            return response()->json([
+                'message' => 'Login successful',
+                'user'    => $user,
+                'role'    => $user->role,
+                'token'   => $token,
+            ], 200);
         }
-        return response()->json(['error' => 'Login failed'], 401);
 
+        return response()->json(['error' => 'Login failed'], 401);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->bearerToken() ?? $request->cookie('auth_token');
 
-        Account::logout();
+        if ($token) {
+            DB::table('account_tokens')->where('token', $token)->delete();
+        }
 
         return response()->json([
             'message' => 'Logout successful',
-            'status' => 'success',
-        ], 200);
+        ])->cookie('auth_token', '', -1); 
     }
 }

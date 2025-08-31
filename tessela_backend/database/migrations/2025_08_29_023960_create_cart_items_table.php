@@ -17,7 +17,7 @@ class CreateCartItemsTable extends Migration
 
             // Foreign key constraint
             $table->foreign('cart_id')->references('cart_id')->on('carts')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
         });
     }
 

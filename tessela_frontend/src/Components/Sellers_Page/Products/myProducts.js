@@ -26,7 +26,7 @@ export default function MyProducts() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    category: "",
+    weaving_type: "",
     description: "",
     price: "",
     stock: "",
@@ -47,7 +47,7 @@ export default function MyProducts() {
         const response = await api.get(`/products/${id}`);
         setFormData({
           name: response.data.name,
-          category: response.data.category,
+          weaving_type: response.data.weaving_type,
           description: response.data.description,
           price: response.data.price,
           stock: response.data.stock,
@@ -101,7 +101,7 @@ export default function MyProducts() {
 
     // Append all your fields
     form.append("name", formData.name);
-    form.append("category", formData.category);
+    form.append("weaving_type", formData.weaving_type);
     form.append("description", formData.description);
     form.append("price", formData.price);
     form.append("stock", formData.stock);
@@ -146,7 +146,7 @@ export default function MyProducts() {
       {/* Filters Component */}
       <ProductsFilters
         search={filter.search}
-        category={filter.category}
+        weaving_type={filter.weaving_type}
         onChange={(n) => setFilter({ ...filter, ...n })}
         onApply={apply}
         onReset={reset}
@@ -202,12 +202,12 @@ export default function MyProducts() {
               />
             </Form.Group>
 
-            <Form.Group controlId="category">
-              <Form.Label>Category</Form.Label>
+            <Form.Group controlId="weaving_type">
+              <Form.Label>Weaving Type</Form.Label>
               <Form.Control
                 type="text"
-                name="category"
-                value={formData.category}
+                name="weaving_type"
+                value={formData.weaving_type}
                 onChange={handleInputChange}
                 required
               />

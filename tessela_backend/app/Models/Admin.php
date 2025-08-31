@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Cart;
 
 class Admin extends Account
 {
     protected $table = 'accounts';
+    protected $primaryKey = 'account_id';
 
     protected $fillable = ['name','email','password','role','gender','birthday'];
 
@@ -18,6 +19,12 @@ class Admin extends Account
      * @param string $title
      * @return void
      */
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'account_id');
+    }
+
     public function createBlog(Blog $blog): void
     {
         $blog->created_by = $this->id;

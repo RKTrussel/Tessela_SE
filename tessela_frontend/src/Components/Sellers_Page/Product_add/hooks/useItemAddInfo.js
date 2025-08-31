@@ -9,7 +9,7 @@ export default function useItemAddInfo() {
 
     const [form, setForm] = useState({
         name: "",
-        category: "",
+        weavingType: "",
         description: "",
         price: "",
         stock: "",
@@ -82,7 +82,7 @@ export default function useItemAddInfo() {
 
     const formData = new FormData();
     formData.append("name", form.name);
-    formData.append("category", form.category);
+    formData.append("weaving_type", form.weavingType);
     formData.append("description", form.description);
     formData.append("price", form.price);
     formData.append("stock", form.stock);

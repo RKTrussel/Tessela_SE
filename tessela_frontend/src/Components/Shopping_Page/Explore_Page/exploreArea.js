@@ -6,14 +6,14 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../../../api';
 
 function ExploreArea({ sort }) { // Receive sort from parent
-    const { category } = useParams();
+    const { weavingType } = useParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const params = { category };
+                const params = { weavingType };
 
                 // Map sort state to backend expected format
                 if (sort === 'price-asc') params.sort = 'price_asc';
@@ -31,7 +31,7 @@ function ExploreArea({ sort }) { // Receive sort from parent
         };
 
         fetchProducts();
-    }, [category, sort]);
+    }, [weavingType, sort]);
 
     if (loading) return <div>Loading...</div>;
 
@@ -41,8 +41,8 @@ function ExploreArea({ sort }) { // Receive sort from parent
                 <Col xs={11}>
                     <Row className="gx-3 gy-3">
                         {products.map(product => (
-                            <Col key={product.id} xs={12} sm={6} md={4} lg={3}>
-                                <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <Col key={product.product_id} xs={12} sm={6} md={4} lg={3}>
+                                <Link to={`/product/${product.product_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                                     <div className="card h-100" style={{ minHeight: '350px', display: 'flex', flexDirection: 'column' }}>
                                         <img
                                             src={product.images[0]?.url}

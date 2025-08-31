@@ -9,8 +9,12 @@ use App\Models\Cart;
 
 class Product extends Model
 {
+    protected $primaryKey = 'product_id';
+    public $incrementing = true;            // default true, but explicit is better
+    protected $keyType = 'int';             // since product_id is BIGINT
+
     protected $fillable = [
-        'name','category','description','price','stock','condition','barcode_value'
+        'name','weaving_type','description','price','stock','condition','barcode_value'
     ];
 
     // Make it show up in JSON automatically
@@ -18,7 +22,7 @@ class Product extends Model
 
     public function images()
     {
-        return $this->hasMany(ProductImage::class)->orderBy('order');
+        return $this->hasMany(ProductImage::class, 'product_id', 'product_id')->orderBy('order');
     }
 
     public function carts()
@@ -47,13 +51,13 @@ class Product extends Model
         elseif ($count >= 1) $score += 15;
 
         // Required fields
-        if (!empty($this->category))      $score += 5;
+        if (!empty($this->weaving_type))      $score += 5;
         if ((float)$this->price > 0)      $score += 5;
         if ((int)$this->stock >= 1)       $score += 5;
         if (!empty($this->barcode_value)) $score += 5;
 
         // Condition valid
-        if (in_array($this->condition, ['New','used'], true)) $score += 5;
+        if (in_array($this->condition, ['New','Used'], true)) $score += 5;
 
         // Title readability (not too long)
         if ($this->name && mb_strlen($this->name) <= 70) $score += 5;

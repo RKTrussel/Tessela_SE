@@ -10,12 +10,11 @@ class CreateCartsTable extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id('cart_id');
-            // $table->unsignedBigInteger('account_id')->nullable();
+            $table->unsignedBigInteger('account_id')->nullable();
             $table->decimal('total_price', 10, 2)->default(0);
             $table->timestamps();
 
-            // // Foreign key constraint
-            // $table->foreign('account_id')->references('account_id')->on('accounts')->onDelete('cascade');
+            $table->foreign('account_id')->references('account_id')->on('accounts')->onDelete('cascade');
         });
     }
 

@@ -1,10 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import api from '../../../api';
 import Col from 'react-bootstrap/Col';
 
-function ImagePreview() {
-    const { id } = useParams();  // Get product ID from URL
+function ImagePreview({ id }) {
     const [images, setImages] = useState([]);
     const imageRefs = useRef([]);
 

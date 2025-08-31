@@ -26,8 +26,12 @@ export default function Login() {
     try {
       const { data, status } = await api.post("/login", form);
       if (status === 200) {
+        if (data.token) {
+          localStorage.setItem("token", data.token); 
+        }
+
         const role = String(data?.role ?? data?.user?.role ?? "").trim().toLowerCase();
-        login({ ...data, role }); // store normalized role
+        login({ ...data, role }); // store normalized role in context
 
         const from = location.state?.from?.pathname;
         const target = role === "admin" ? "/dashboard" : (from || "/");

@@ -1,13 +1,17 @@
 .navbar {
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: sticky;
+  top: 0;                
+  z-index: 1000;        
+  height: 60px;          
 }
 
 nav ul {
     margin-right: 30px;
-    padding-top: 10px;
+    padding-top: 10px;   
 }
 
 nav ul li {
@@ -34,17 +38,17 @@ nav ul li {
     color: #521C0D;
 }
 
-
 .second-navbar {
-    background: white;
-    list-style-type: none;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-    margin: 0;   /* removes default top & bottom margin */
-    padding: 8px 0; /* optional: adds even spacing */
+  background: white;
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  position: sticky;
+  top: 60px;             /* 👈 offset equal to .navbar’s height */
+  z-index: 999;          /* just below main navbar */
 }
 
 .second-navbar li a {

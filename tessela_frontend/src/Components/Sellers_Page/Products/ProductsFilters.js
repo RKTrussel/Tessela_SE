@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 
 export default function ProductsFilters({
   search,
-  category,
+  weaving_type,
   onChange,
   onApply,
   onReset,
@@ -22,9 +22,9 @@ export default function ProductsFilters({
       </Col>
       <Col md={2}>
         <Form.Control
-          placeholder="Search by category"
-          value={category}
-          onChange={(e) => onChange({ category: e.target.value })}
+          placeholder="Search by Weaving type"
+          value={weaving_type}
+          onChange={(e) => onChange({ weaving_type: e.target.value })}
         />
       </Col>
       <Col md="auto" className="d-flex gap-2">

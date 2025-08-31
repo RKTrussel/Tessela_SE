@@ -2,9 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,21 +19,32 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
-Route::post('/products', [ProductController::class, 'addItem']);
-Route::get('/products', [ProductController::class, 'indexItem']);
-Route::get('/products/{id}', [ProductController::class, 'getItem']);
-Route::put('/products/{product}', [ProductController::class, 'updateItem']);
-Route::delete('/products/{product}', [ProductController::class, 'destroyItem']);
+Route::post('/products', [AdminController::class, 'addItem']);
+Route::put('/products/{product}', [AdminController::class, 'updateItem']);
+Route::delete('/products/{product}', [AdminController::class, 'destroyItem']);
 
-Route::get('/cart', [CartController::class, 'show']);
-Route::post('/cart/add', [CartController::class, 'addItem']);
-Route::post('/cart/remove/{itemId}', [CartController::class, 'removeItem']);
-Route::post('/cart/clear', [CartController::class, 'clear']);
+Route::get('/products', [ProductController::class, 'getDetails']);
 
+Route::get('/search', [UserController::class, 'searchItem']);
+Route::get('/products/{id}', [UserController::class, 'viewItemDetails']);
+
+// Route::post('/cart/add', [UserController::class, 'addToCart']);
+// Route::get('/cart', [CartController::class, 'show']);
+// Route::put('/cart/items/{id}', [CartController::class, 'updateItem']);
+// Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);
+// Route::post('/cart/clear', [CartController::class, 'clear']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::middleware('token.auth')->group(function () {
+    Route::post('/cart/add', [UserController::class, 'addToCart']);
+    Route::get('/cart', [CartController::class, 'show']);
+    Route::put('/cart/items/{id}', [CartController::class, 'updateItem']);
+    Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);
+    Route::post('/cart/clear', [CartController::class, 'clear']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+

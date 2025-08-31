@@ -104,14 +104,14 @@ export default function ItemAddInfo() {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>Category *</Form.Label>
+                <Form.Label>Weaving Type *</Form.Label>
                 <Form.Select
-                  name="category"
-                  value={form.category}
+                  name="weavingType"
+                  value={form.weavingType}
                   onChange={onChange}
                   required
                 >
-                  <option value="">Please set category</option>
+                  <option value="">Please set Weaving</option>
                   <option>Inabel</option>
                   <option>Ikat</option>
                   <option>Kalinga</option>

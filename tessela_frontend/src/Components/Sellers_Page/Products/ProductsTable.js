@@ -72,7 +72,7 @@ export default function ProductsTable({
                       <div>
                         <div className="fw-semibold">{p.name}</div>
                         <div className="text-muted small">
-                          #{p.id} • {p.category} • {p.barcode_value}
+                          #{p.id} • {p.weaving_type} • {p.barcode_value}
                         </div>
                       </div>
                     </div>

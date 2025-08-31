@@ -8,17 +8,17 @@ import Ikat from '../Files/ikat.jpg';
 import Kalinga from '../Files/kalinga.jpg';
 
 export default function ExploreImage() {
-    const { category } = useParams(); // Get category from the URL
+    const { weavingType } = useParams();
 
     // Map categories to their respective image URLs
-    const categoryImages = {
+    const weavingTypeImages = {
         Inabel,
         Ikat,
         Kalinga
     };
 
-    // Default image if the category is not found
-    const imageUrl = categoryImages[category] || "https://your-image-url.com/default.jpg";
+    // Default image if the weaving_type is not found
+    const imageUrl = weavingTypeImages[weavingType] || "https://your-image-url.com/default.jpg";
 
     return (
         <Container>
@@ -26,7 +26,7 @@ export default function ExploreImage() {
                 <Col md={5} >
                     <Image
                         src={imageUrl} 
-                        alt={category ? `${category} Textile` : "Textile"}
+                        alt={weavingType ? `${weavingType} Textile` : "Textile"}
                         fluid
                         rounded
                     />

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import api from '../../../api';
 import Col from 'react-bootstrap/Col';
 
@@ -8,8 +7,7 @@ function currency(n) {
   return Number(n).toFixed(2);
 }
 
-function ItemDetails() {
-  const { id } = useParams();
+function ItemDetails({ id }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -19,7 +17,7 @@ function ItemDetails() {
 
   const itemId = useMemo(() => {
     if (!product) return null;
-    return product.id ?? null;
+    return product.product_id ?? null;
   }, [product]);
 
   const maxQty = product?.stock > 0 ? Number(product.stock) : 0;

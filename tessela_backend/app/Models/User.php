@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Cart;
 
 class User extends Account
 {
@@ -15,6 +16,11 @@ class User extends Account
     protected $table = 'accounts';
 
     protected $fillable = ['name','email','password','role','gender','birthday'];
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'account_id', 'account_id');
+    }
 
     // ------------------------------------
     //   RELATIONSHIPS (BLOG CLASS [LIKE, COMMENT])
@@ -27,12 +33,6 @@ class User extends Account
     public function comments()
     {
         return $this->hasMany(Comment::class, 'userId');
-    }
-
-    // Relationship with Cart model
-    public function carts()
-    {
-        return $this->hasMany(Cart::class, 'account_id', 'account_id');
     }
 
     // ------------------------------------

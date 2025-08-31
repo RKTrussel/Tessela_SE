@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Models\Cart;
 
 class Account extends Model
 {
@@ -15,18 +16,17 @@ class Account extends Model
     protected $table = 'accounts';
     protected $primaryKey = 'account_id';
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-        'gender',
-        'birthday'
-    ];
+    protected $fillable = ['name','email','password','role','gender','birthday'];
     
     protected $hidden = [
         'password',
     ];
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'account_id');
+    }
+
     
     public static function boot()
     {
@@ -65,21 +65,36 @@ class Account extends Model
         return $model;
     }
 
-    public static function login(string $email, string $password): ?Account
+    public static function login(string $email, string $password): ?array
     {
-        
         $row = DB::table('accounts')->where('email', $email)->first();
 
         if (!$row || !Hash::check($password, $row->password)) {
             return null;
         }
-        
-        if ($row->role === 'admin') {
-            return Admin::find($row->account_id);
-        } else {
-            return User::find($row->account_id);
-        }
+
+        // Generate random token
+        $token = bin2hex(random_bytes(32));
+
+        // Store in tokens table
+        DB::table('account_tokens')->insert([
+            'account_id' => $row->account_id,
+            'token' => $token,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Return both account and token
+        $account = $row->role === 'admin'
+            ? Admin::find($row->account_id)
+            : User::find($row->account_id);
+
+        return [
+            'user' => $account,
+            'token' => $token,
+        ];
     }
+
 
     public static function register($name, $email, $password, $birthday, $gender, $role ): bool
     {
@@ -105,11 +120,6 @@ class Account extends Model
         }
     }
 
-    public static function logout(): bool
-    {
-        Auth::logout();
-        return true;
-    }
 
     public function isAdmin(): bool
     {

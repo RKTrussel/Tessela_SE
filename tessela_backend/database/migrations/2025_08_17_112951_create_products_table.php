@@ -7,19 +7,14 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
+            $table->id('product_id');
             $table->string('name');
-            $table->string('category');               
+            $table->string('weaving_type');               
             $table->text('description')->nullable();
-
-            $table->decimal('price', 12, 2)->default(0);
-            $table->unsignedInteger('stock')->default(0);
-
-            // store as string to keep leading zeros
+            $table->double('price', 12, 2)->default(0);   
+            $table->integer('stock')->default(0);         
             $table->string('barcode_value')->unique();
-
-            $table->enum('condition', ['New', 'used'])->default('New');
-
+            $table->enum('condition', ['New', 'Used'])->default('New');
             $table->timestamps();
         });
     }

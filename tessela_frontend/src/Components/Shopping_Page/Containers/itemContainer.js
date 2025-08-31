@@ -7,7 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
 function ItemContainer() {
-    const { id } = useParams();  // Get product ID from URL
+    const { id } = useParams(); 
 
     return (
         <>
@@ -16,8 +16,8 @@ function ItemContainer() {
             <hr />
             <Container fluid>
                 <Row className="justify-content-center">
-                    <ImagePreview />
-                    <ItemDetails />
+                    <ImagePreview id={id} />
+                    <ItemDetails id={id} />
                 </Row>
             </Container>
         </>

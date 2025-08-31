@@ -5,6 +5,7 @@ import HomePage from './Components/Shopping_Page/Home_Page/homePage';
 import Explore from './Components/Shopping_Page/Containers/exploreContainer';
 import ItemContainer from './Components/Shopping_Page/Containers/itemContainer';
 import ShoppingBagContainer from './Components/Shopping_Page/Containers/shoppingBagContainer';
+import Checkout from './Components/Shopping_Page/CheckOut/checkout';
 
 import { DashboardContainer, MyOrderContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
 import MyProductContainer from "./Components/Sellers_Page/Containers/myProductContainer";
@@ -32,9 +33,10 @@ function App() {
           {/* Everything below requires a logged-in user (blocks non-user from shop) */}
           <Route element={<RequireAuth />}>
             {/* Shopping Page (protected) */}
-            <Route path="/explore/:category" element={<Explore />} />
+            <Route path="/explore/:weavingType" element={<Explore />} />
             <Route path="/product/:id" element={<ItemContainer />} />
             <Route path="/shoppingBag" element={<ShoppingBagContainer />} />
+            <Route path="/checkout" element={<Checkout />} />
 
             {/* Admin-only area (blocks user & guest from admin) */}
             <Route element={<RequireRole allow={['admin']} />}>
@@ -43,7 +45,7 @@ function App() {
               <Route path="/dashboard/myProduct" element={<MyProductContainer />} />
               <Route path="/dashboard/myProduct/addProduct" element={<ProductAddContainer />} />
             </Route>
-            
+
           </Route>
         </Routes>
       </BrowserRouter>

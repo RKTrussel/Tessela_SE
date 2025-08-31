@@ -5,10 +5,9 @@ import Button from 'react-bootstrap/Button';
 import { useParams } from 'react-router-dom';
 
 function ExploreStory() {
-    const { category } = useParams(); // Get category from the URL
+    const { weavingType } = useParams();
 
-    // Dynamically set the title and description based on the category
-    const categoryInfo = {
+    const weavingTypeInfo = {
         Inabel: {
             title: "Welcome to the Inabel Page",
             description: "Inabel is a traditional handwoven textile, known for its intricate patterns and cultural significance in the Philippines."
@@ -23,7 +22,7 @@ function ExploreStory() {
         },
     };
 
-    const { title, description } = categoryInfo[category] 
+    const { title, description } = weavingTypeInfo[weavingType] 
 
     return (
         <Container className="mt-1">
