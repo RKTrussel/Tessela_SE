@@ -10,6 +10,8 @@ class Admin extends Account
 {
     protected $table = 'accounts';
 
+    protected $fillable = ['name','email','password','role','gender','birthday'];
+
     /**
      * Create a new blog post.
      *

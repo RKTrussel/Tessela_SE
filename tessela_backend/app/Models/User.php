@@ -14,9 +14,7 @@ class User extends Account
 
     protected $table = 'accounts';
 
-
-
-
+    protected $fillable = ['name','email','password','role','gender','birthday'];
 
     // ------------------------------------
     //   RELATIONSHIPS (BLOG CLASS [LIKE, COMMENT])

@@ -18,7 +18,9 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['admin', 'user']); // discriminator column
+            $table->enum('gender', ['Male', 'Female'])->nullable();
+            $table->date('birthday')->nullable();
+            $table->enum('role', ['admin', 'user']); 
             $table->timestamps();
         });
 

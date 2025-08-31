@@ -7,11 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\Account;
 use App\Models\Admin;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        Log::info('Incoming request data: ', $request->all());
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:accounts',
@@ -58,8 +60,7 @@ class AuthController extends Controller
                 ], 200);
             }
         }
-
-return response()->json(['error' => 'Login failed'], 401);
+        return response()->json(['error' => 'Login failed'], 401);
 
     }
 

@@ -20,6 +20,8 @@ class Account extends Model
         'email',
         'password',
         'role',
+        'gender',
+        'birthday'
     ];
     
     protected $hidden = [
@@ -79,7 +81,7 @@ class Account extends Model
         }
     }
 
-    public static function register($name, $email, $password, $role): bool
+    public static function register($name, $email, $password, $birthday, $gender, $role ): bool
     {
         try 
         {
@@ -89,7 +91,10 @@ class Account extends Model
                 'name' => $name,
                 'email' => $email,
                 'password' => Hash::make($password),
+                'birthday' => $birthday,
+                'gender'   => $gender,
                 'role' => $role,
+
             ]);
 
             return true;

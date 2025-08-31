@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { Form, Button, Card, Alert, InputGroup } from "react-bootstrap";
-import { Eye, EyeSlash } from "react-bootstrap-icons"; // install react-bootstrap-icons if needed
+import { Eye, EyeSlash } from "react-bootstrap-icons";
 import api from '../../api.js';
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
-export default function Login({ onSwitch, onLogin, onForgot }) {
-  const [form, setForm] = useState({ email: "", password: "", remember: false });
+export default function Login() {
+  const [form, setForm] = useState({ email: "", password: ""});
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
   const onChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const submit = async (e) => {
@@ -22,12 +24,17 @@ export default function Login({ onSwitch, onLogin, onForgot }) {
     if (!form.email || !form.password) return setError("Please fill all fields.");
 
     try {
-      const response = await api.post("/login", form);
-      if (response.status === 200) {
-        onLogin?.(form);
-        console.log(response.status);
+      const { data, status } = await api.post("/login", form);
+      if (status === 200) {
+        const role = String(data?.role ?? data?.user?.role ?? "").trim().toLowerCase();
+        login({ ...data, role }); // store normalized role
+
+        const from = location.state?.from?.pathname;
+        const target = role === "admin" ? "/dashboard" : (from || "/");
+        console.log("navigate target:", target, "role:", role);
+        navigate(target, { replace: true });
       }
-    } catch (error) {
+    } catch (err) {
       setError("Login failed. Please try again.");
     }
   };
@@ -39,14 +46,7 @@ export default function Login({ onSwitch, onLogin, onForgot }) {
       <Form onSubmit={submit}>
         <Form.Group className="mb-3">
           <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={onChange}
-            placeholder="you@example.com"
-            required
-          />
+          <Form.Control type="email" name="email" value={form.email} onChange={onChange} placeholder="you@example.com" required />
         </Form.Group>
 
         <Form.Group className="mb-2">
@@ -61,11 +61,7 @@ export default function Login({ onSwitch, onLogin, onForgot }) {
               required
               minLength={6}
             />
-            <Button
-              variant="outline-secondary"
-              onClick={() => setShowPassword(!showPassword)}
-              type="button"
-            >
+            <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)} type="button">
               {showPassword ? <EyeSlash /> : <Eye />}
             </Button>
           </InputGroup>
@@ -73,7 +69,6 @@ export default function Login({ onSwitch, onLogin, onForgot }) {
 
         <Button type="submit" className="w-100">LOGIN</Button>
 
-        {/* Terms and Privacy */}
         <div className="text-center mt-3">
           <small>
             By creating your account or signing in, you agree to our{" "}
