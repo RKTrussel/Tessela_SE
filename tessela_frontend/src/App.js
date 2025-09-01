@@ -18,13 +18,18 @@ import RequireAuth from './Components/Auth/Guards/RequireAuth';
 import RequireRole from './Components/Auth/Guards/RequireRole';
 import GuestOnly from './Components/Auth/Guards/GuestOnly';
 
+import BlogHomePage from './Components/Blog_Page/BlogHomePage';
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          
+          <Route path="/blogsite" element={<BlogHomePage />} />
+
+          {/* Blog Site Routes */}
+
           {/* Guests should NOT reach /auth if already logged in */}
           <Route element={<GuestOnly />}>
             <Route path="/auth" element={<AuthContainer />} />
