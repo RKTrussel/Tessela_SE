@@ -7,7 +7,8 @@ import ExploreNavbar from '../Explore_Page/exploreNavbar';
 import Explore from '../Explore_Page/exploreArea';
 
 function ExploreContainer() {
-    const [sort, setSort] = useState('default'); // Track current sort option
+    const [sort, setSort] = useState('default'); 
+    const [productCount, setProductCount] = useState(0);
 
     return (
         <>
@@ -19,10 +20,10 @@ function ExploreContainer() {
             <ExploreStory />
             <hr />
             {/* Pass sort state and setter to ExploreNavbar */}
-            <ExploreNavbar sort={sort} setSort={setSort} />
+            <ExploreNavbar sort={sort} setSort={setSort}  productCount={productCount}/>
             <hr />
             {/* Pass current sort to ExploreArea */}
-            <Explore sort={sort} />
+            <Explore sort={sort} setProductCount={setProductCount}/>
         </>
     );
 }

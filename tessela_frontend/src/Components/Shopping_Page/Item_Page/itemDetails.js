@@ -151,27 +151,6 @@ function ItemDetails({ id }) {
 
       {message && <div className="alert alert-success">{message}</div>}
       {error && <div className="alert alert-danger">{error}</div>}
-
-      <div className="alert alert-info">
-        {product?.sale_info || 'No sale info available'}{' '}
-        <a href="#dsa">See promo codes</a>
-      </div>
-      <hr />
-
-      <h5>EDITOR&apos;S NOTE</h5>
-      <p>{product?.editor_note || 'No editor’s note available'}</p>
-
-      <h6>SUITABLE FOR</h6>
-      <p>{product?.suitable_for || 'No suitable-for information available'}</p>
-
-      <h6>THE DETAILS</h6>
-      <ul>
-        {Array.isArray(product?.details) && product.details.length > 0 ? (
-          product.details.map((detail, idx) => <li key={idx}>{detail}</li>)
-        ) : (
-          <li>No details available</li>
-        )}
-      </ul>
     </Col>
   );
 }

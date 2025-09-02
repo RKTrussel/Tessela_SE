@@ -60,13 +60,6 @@ function SideNavbar() {
               <button
                 type="button"
                 className="list-group-item list-group-item-action text-start"
-                onClick={() => navigate('/dashboard/myProduct')}
-              >
-                My Products
-              </button>
-              <button
-                type="button"
-                className="list-group-item list-group-item-action text-start"
                 onClick={() => navigate('/dashboard/myProduct/addProduct')}
               >
                 Add New Product

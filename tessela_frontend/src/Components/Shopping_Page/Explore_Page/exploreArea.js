@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../../api';
 
-function ExploreArea({ sort }) { // Receive sort from parent
+function ExploreArea({ sort, setProductCount  }) {
     const { weavingType } = useParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,6 +23,7 @@ function ExploreArea({ sort }) { // Receive sort from parent
 
                 const response = await api.get('/products', { params });
                 setProducts(response.data.data);
+                setProductCount(response.data.data.length);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -31,7 +32,7 @@ function ExploreArea({ sort }) { // Receive sort from parent
         };
 
         fetchProducts();
-    }, [weavingType, sort]);
+    }, [weavingType, sort, setProductCount]);
 
     if (loading) return <div>Loading...</div>;
 

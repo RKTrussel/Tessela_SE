@@ -77,7 +77,7 @@ export default function ProductsTable({
                       </div>
                     </div>
                   </td>
-                  <td>—</td>
+                  <td>{p.sales_quantity ?? 0}</td>
                   <td>₱{Number(p.price).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                   <td>{p.stock}</td>
                   <td style={{ minWidth: 180 }}>

@@ -29,6 +29,7 @@ export default function ExploreImage() {
                         alt={weavingType ? `${weavingType} Textile` : "Textile"}
                         fluid
                         rounded
+                        style={{ maxHeight: '22rem' , minWidth: '33rem'}}
                     />
                 </Col>
             </Row>
