@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\Product;
 
 class OrderController extends Controller
 {
@@ -64,11 +65,22 @@ class OrderController extends Controller
 
             foreach ($data['items'] as $item) {
                 OrderItem::create([
-                    'order_id'  => $order->order_id,
-                    'product_id'=> $item['product_id'],
-                    'quantity'  => $item['quantity'],
-                    'price'     => $item['price'],
+                    'order_id'   => $order->order_id,
+                    'product_id' => $item['product_id'],
+                    'quantity'   => $item['quantity'],
+                    'price'      => $item['price'],
                 ]);
+
+                // 🔹 Decrement stock
+                $product = Product::find($item['product_id']);
+                if ($product) {
+                    // Prevent negative stock
+                    if ($product->stock < $item['quantity']) {
+                        throw new \Exception("Not enough stock for product {$product->name}");
+                    }
+
+                    $product->decrement('stock', $item['quantity']);
+                }
             }
 
             // remove purchased items from cart

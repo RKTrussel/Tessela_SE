@@ -10,6 +10,7 @@ import MarketPlaceContainer from './Components/Shopping_Page/Containers/marketPl
 import AddressContainer from './Components/Shopping_Page/Containers/addressContainer';
 
 import { DashboardContainer, MyOrderContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
+import MyProductContainer from './Components/Sellers_Page/Containers/myProductContainer';
 import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
 
 import AuthContainer from './Components/Auth/Container/AuthContainer';
@@ -44,6 +45,7 @@ function App() {
             {/* Admin-only area (blocks user & guest from admin) */}
             <Route element={<RequireRole allow={['admin']} />}>
               <Route path="/dashboard" element={<DashboardContainer />} />
+              <Route path="/dashboard/myProduct" element={<MyProductContainer />} />
               <Route path="/dashboard/myOrder" element={<MyOrderContainer />} />
               <Route path="/dashboard/myProduct/addProduct" element={<ProductAddContainer />} />
             </Route>

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Tab, Nav, Button, Table } from 'react-bootstrap';
+import { useLocation } from "react-router-dom";
 import api from '../../../api';
 
 const MyOrders = () => {
+  const location = useLocation();
+  const initialStatus = location.state?.status || "pending";
   const [orders, setOrders] = useState([]);
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState(initialStatus);
   const [shippingPriority, setShippingPriority] = useState("All");
   const [orderId, setOrderId] = useState("");
 
@@ -26,6 +29,7 @@ const MyOrders = () => {
 
   useEffect(() => {
     fetchOrders();
+    // eslint-disable-next-line
   }, [status, shippingPriority, orderId]);
 
   const handleSearch = () => {
@@ -35,7 +39,7 @@ const MyOrders = () => {
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       await api.patch(`/admin/orders/${orderId}/status`, { status: newStatus });
-      fetchOrders(); // reload orders after update
+      fetchOrders(); 
     } catch (err) {
       console.error("Failed to update status:", err);
     }

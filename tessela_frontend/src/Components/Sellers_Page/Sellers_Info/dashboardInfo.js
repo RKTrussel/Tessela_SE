@@ -15,13 +15,21 @@ function SellerDashboard() {
             <h5 className="mb-4 text-muted text-uppercase">To Do List</h5>
             <Row className="text-center">
                 <Col md={6}>
-                    <Button variant="outline-light" className="w-100 py-3 rounded" onClick={() => navigate("/to-process")} >
-                    <h4 className="text-primary mb-1">0</h4>
-                    <small className="text-muted">To-Process Shipment</small>
+                   <Button
+                        variant="outline-light"
+                        className="w-100 py-3 rounded"
+                        onClick={() => navigate("/dashboard/myOrder", { state: { status: "pending" } })}
+                        >
+                        <h4 className="text-primary mb-1">0</h4>
+                        <small className="text-muted">To-Process Shipment</small>
                     </Button>
                 </Col>
                 <Col md={6}>
-                    <Button variant="outline-light" className="w-100 py-3 rounded" onClick={() => navigate("/processed")} >
+                    <Button
+                    variant="outline-light"
+                    className="w-100 py-3 rounded"
+                    onClick={() => navigate("/dashboard/myOrder", { state: { status: "processed" } })}
+                    >
                     <h4 className="text-success mb-1">0</h4>
                     <small className="text-muted">Processed Shipment</small>
                     </Button>

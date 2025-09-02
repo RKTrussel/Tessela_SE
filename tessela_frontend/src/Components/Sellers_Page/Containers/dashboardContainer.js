@@ -1,7 +1,7 @@
 import SideNavbar from "../Sellers_Info/sideNavbar";
 import TopNavbar from "../Sellers_Info/topNavbar";
+import SellerDashboard from "../Sellers_Info/dashboardInfo";
 import MyOrders from "../Orders/myOrders";
-import MyProducts from "../Products/myProducts";
 import { TopCustomNav3 } from "../Product_add/topCustomNav";
 
 export function DashboardContainer() {
@@ -10,7 +10,7 @@ export function DashboardContainer() {
             <TopNavbar />
             <div className="d-flex">
                 <SideNavbar />
-                <MyProducts />
+                <SellerDashboard />
             </div>
         </>
     );
