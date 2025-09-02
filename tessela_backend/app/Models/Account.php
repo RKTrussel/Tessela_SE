@@ -24,9 +24,8 @@ class Account extends Model
 
     public function carts()
     {
-        return $this->hasMany(Cart::class, 'account_id');
+        return $this->hasMany(Cart::class, 'account_id', 'account_id');
     }
-
     
     public static function boot()
     {
@@ -131,5 +130,8 @@ class Account extends Model
         return $this->role === 'user';
     }
 
-
+    public function addresses()
+    {
+        return $this->hasMany(Address::class, 'account_id');
+    }
 }

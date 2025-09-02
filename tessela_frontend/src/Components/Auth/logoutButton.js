@@ -15,7 +15,8 @@ export default function LogoutButton({ className, children = "Logout" }) {
       // Even if server call fails, still clear local state
       console.warn("Logout request failed, clearing client state anyway.", e);
     } finally {
-      logout();            // clears context + localStorage
+      localStorage.removeItem("token");
+      logout();
       navigate("/auth", { replace: true });
     }
   };
