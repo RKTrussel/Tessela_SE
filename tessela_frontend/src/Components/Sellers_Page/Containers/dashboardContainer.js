@@ -2,7 +2,8 @@ import SideNavbar from "../Sellers_Info/sideNavbar";
 import TopNavbar from "../Sellers_Info/topNavbar";
 import SellerDashboard from "../Sellers_Info/dashboardInfo";
 import MyOrders from "../Orders/myOrders";
-import { TopCustomNav3 } from "../Product_add/topCustomNav";
+import MyProducts from "../Products/myProducts";
+import { TopCustomNav3 , TopCustomNav2 } from "../Product_add/topCustomNav";
 
 export function DashboardContainer() {
     return (
@@ -24,6 +25,20 @@ export function MyOrderContainer() {
                 <SideNavbar />
                 <MyOrders />
             </div>
+        </>
+    );
+}
+
+
+export function MyProductContainer() {
+    return (
+        <>
+            <TopCustomNav2 />
+            <div className="d-flex" style={{display: 'flex' , background: '#f5f5f5' , minHeight: '94vh'}}>
+                <SideNavbar />
+                <MyProducts />
+            </div>
+            
         </>
     );
 }

@@ -9,8 +9,7 @@ import Checkout from './Components/Shopping_Page/CheckOut/checkout';
 import MarketPlaceContainer from './Components/Shopping_Page/Containers/marketPlaceContainer';
 import AddressContainer from './Components/Shopping_Page/Containers/addressContainer';
 
-import { DashboardContainer, MyOrderContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
-import MyProductContainer from './Components/Sellers_Page/Containers/myProductContainer';
+import { DashboardContainer, MyOrderContainer , MyProductContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
 import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
 
 import AuthContainer from './Components/Auth/Container/AuthContainer';
