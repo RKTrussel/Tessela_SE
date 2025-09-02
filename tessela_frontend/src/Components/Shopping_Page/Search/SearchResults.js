@@ -1,6 +1,9 @@
-// src/components/Search/SearchResults.jsx
 import { Link, useNavigate } from "react-router-dom";
-import { Row, Col, ListGroup, Spinner, Button } from "react-bootstrap";
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Spinner from 'react-bootstrap/Spinner';
+import Button from 'react-bootstrap/Button';
 
 const php = (n) => {
   const num = Number(n || 0);

@@ -10,8 +10,8 @@ use App\Models\Cart;
 class Product extends Model
 {
     protected $primaryKey = 'product_id';
-    public $incrementing = true;            // default true, but explicit is better
-    protected $keyType = 'int';             // since product_id is BIGINT
+    public $incrementing = true;           
+    protected $keyType = 'int';
 
     protected $fillable = [
         'name','weaving_type','description','price','stock','condition','barcode_value'
@@ -31,6 +31,14 @@ class Product extends Model
                     ->withPivot('quantity')
                     ->withTimestamps();
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_id', 'product_id'); 
+        // left: FK column on order_items
+        // right: PK column on products
+    }
+
 
     public function getContentQualityAttribute(): int
     {
