@@ -6,9 +6,10 @@ import Explore from './Components/Shopping_Page/Containers/exploreContainer';
 import ItemContainer from './Components/Shopping_Page/Containers/itemContainer';
 import ShoppingBagContainer from './Components/Shopping_Page/Containers/shoppingBagContainer';
 import Checkout from './Components/Shopping_Page/CheckOut/checkout';
+import MarketPlaceContainer from './Components/Shopping_Page/Containers/marketPlaceContainer';
+import AddressContainer from './Components/Shopping_Page/Containers/addressContainer';
 
 import { DashboardContainer, MyOrderContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
-import MyProductContainer from "./Components/Sellers_Page/Containers/myProductContainer";
 import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
 
 import AuthContainer from './Components/Auth/Container/AuthContainer';
@@ -37,15 +38,15 @@ function App() {
             <Route path="/product/:id" element={<ItemContainer />} />
             <Route path="/shoppingBag" element={<ShoppingBagContainer />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/marketplace" element={<MarketPlaceContainer />} />
+            <Route path="/account" element={<AddressContainer />} />
 
             {/* Admin-only area (blocks user & guest from admin) */}
             <Route element={<RequireRole allow={['admin']} />}>
               <Route path="/dashboard" element={<DashboardContainer />} />
               <Route path="/dashboard/myOrder" element={<MyOrderContainer />} />
-              <Route path="/dashboard/myProduct" element={<MyProductContainer />} />
               <Route path="/dashboard/myProduct/addProduct" element={<ProductAddContainer />} />
             </Route>
-
           </Route>
         </Routes>
       </BrowserRouter>
