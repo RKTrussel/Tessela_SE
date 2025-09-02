@@ -9,7 +9,7 @@ const CartItem = ({ item, onQuantityChange, onDelete, onSelect }) => {
         <Form.Check
           type="checkbox"
           checked={item.selected}
-          onChange={() => onSelect(item.id)}
+          onChange={() => onSelect(item.product_id)}   // ✅ use product_id
         />
       </td>
       <td>
@@ -31,7 +31,7 @@ const CartItem = ({ item, onQuantityChange, onDelete, onSelect }) => {
         <Button
           variant="outline-secondary"
           size="sm"
-          onClick={() => onQuantityChange(item.id, -1)}
+          onClick={() => onQuantityChange(item.product_id, -1)}
         >
           −
         </Button>
@@ -39,7 +39,7 @@ const CartItem = ({ item, onQuantityChange, onDelete, onSelect }) => {
         <Button
           variant="outline-secondary"
           size="sm"
-          onClick={() => onQuantityChange(item.id, 1)}
+          onClick={() => onQuantityChange(item.product_id, 1)}
         >
           +
         </Button>
@@ -49,7 +49,7 @@ const CartItem = ({ item, onQuantityChange, onDelete, onSelect }) => {
         <Button
           variant="link"
           className="text-danger p-0"
-          onClick={() => onDelete(item.id)}
+          onClick={() => onDelete(item.product_id)}
         >
           Delete
         </Button>

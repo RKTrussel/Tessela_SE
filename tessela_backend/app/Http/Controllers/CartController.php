@@ -29,7 +29,7 @@ class CartController extends Controller
             $imgUrl = $first?->url ?? ($first?->path ? asset('storage/'.$first->path) : null);
 
             return [
-                'product_id' => $p->id,
+                'product_id' => $p->product_id,
                 'name'       => $p->name,
                 'price'      => (float) $p->price,
                 'quantity'   => (int) $p->pivot->quantity,

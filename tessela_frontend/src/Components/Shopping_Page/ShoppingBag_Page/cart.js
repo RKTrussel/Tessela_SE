@@ -25,15 +25,11 @@ const Cart = () => {
         [];
 
       const items = rawItems.map(i => ({
-        id: i.product_id ?? i.id,
+        product_id: i.product_id ?? i.id,   // ✅ always use product_id
         name: i.name ?? i.title ?? '—',
         price: Number(i.price ?? 0),
         quantity: Number(i.quantity ?? i.qty ?? 1),
-        image:
-          i.image_url ??
-          i.image ??
-          i.images?.[0]?.url ??
-          null,
+        image: i.image_url ?? i.image ?? i.images?.[0]?.url ?? null,
         selected: Boolean(i.selected),
       }));
 
@@ -45,19 +41,19 @@ const Cart = () => {
   };
 
   // 🔹 Update quantity (+ / −)
-  const handleQuantityChange = async (id, change) => {
+  const handleQuantityChange = async (productId, change) => {
     setCartItems(prev =>
       prev.map(item =>
-        item.id === id
+        item.product_id === productId
           ? { ...item, quantity: Math.max(1, item.quantity + change) }
           : item
       )
     );
     try {
-      const item = cartItems.find(i => i.id === id);
+      const item = cartItems.find(i => i.product_id === productId);
       if (!item) return;
       const newQuantity = Math.max(1, (item.quantity || 1) + change);
-      await api.put(`/cart/items/${id}`, { quantity: newQuantity });
+      await api.put(`/cart/items/${productId}`, { quantity: newQuantity });
     } catch (error) {
       console.error('Error updating quantity:', error);
       fetchCart(); // fallback sync
@@ -65,10 +61,10 @@ const Cart = () => {
   };
 
   // 🔹 Delete single item
-  const handleDelete = async (id) => {
-    setCartItems(prev => prev.filter(i => i.id !== id));
+  const handleDelete = async (productId) => {
+    setCartItems(prev => prev.filter(i => i.product_id !== productId));
     try {
-      await api.delete(`/cart/items/${id}`);
+      await api.delete(`/cart/items/${productId}`);
     } catch (error) {
       console.error('Error removing item:', error);
       fetchCart();
@@ -87,10 +83,12 @@ const Cart = () => {
   };
 
   // 🔹 Select items for checkout
-  const handleSelect = (id) => {
+  const handleSelect = (productId) => {
     setCartItems(prevItems =>
       prevItems.map(item =>
-        item.id === id ? { ...item, selected: !item.selected } : item
+        item.product_id === productId
+          ? { ...item, selected: !item.selected }
+          : item
       )
     );
   };
@@ -104,9 +102,13 @@ const Cart = () => {
 
   const handleCheckout = () => {
     if (selectedItems.length === 0) return;
+
+    console.log("Selected items for checkout:", selectedItems);
+
     sessionStorage.setItem('checkoutItems', JSON.stringify(selectedItems));
     navigate('/checkout');
   };
+
 
   return (
     <Container className="mt-4">
@@ -144,7 +146,7 @@ const Cart = () => {
         <tbody>
           {cartItems.map((item) => (
             <CartItem
-              key={item.id}
+              key={item.product_id}
               item={item}
               onQuantityChange={handleQuantityChange}
               onDelete={handleDelete}
