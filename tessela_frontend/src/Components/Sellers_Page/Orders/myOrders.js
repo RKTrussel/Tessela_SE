@@ -17,6 +17,7 @@ const MyOrders = () => {
         params: {
           status: status !== "All" ? status : undefined,
           order_id: orderId || undefined,
+          
           priority: shippingPriority !== "All" ? shippingPriority : undefined,
         },
       });
@@ -31,10 +32,6 @@ const MyOrders = () => {
     fetchOrders();
     // eslint-disable-next-line
   }, [status, shippingPriority, orderId]);
-
-  const handleSearch = () => {
-    fetchOrders();
-  };
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
@@ -72,17 +69,6 @@ const MyOrders = () => {
       {/* Filters */}
       <Row className="mb-4">
         <Col md={4}>
-          <select
-            className="form-select"
-            value={shippingPriority}
-            onChange={(e) => setShippingPriority(e.target.value)}
-          >
-            <option value="All">All</option>
-            <option value="Ship By Today">Ship By Today</option>
-            <option value="Ship By Tomorrow">Ship By Tomorrow</option>
-          </select>
-        </Col>
-        <Col md={4}>
           <input
             type="text"
             className="form-control"
@@ -91,8 +77,7 @@ const MyOrders = () => {
             onChange={(e) => setOrderId(e.target.value)}
           />
         </Col>
-        <Col md={4} className="d-flex flex-row gap-2 justify-content-end">
-          <Button variant="primary" onClick={handleSearch}>Apply</Button>
+        <Col md={8} className="d-flex flex-row gap-2 justify-content-end">
           <Button variant="outline-secondary" onClick={() => { setShippingPriority("All"); setOrderId(""); }}>Reset</Button>
         </Col>
       </Row>

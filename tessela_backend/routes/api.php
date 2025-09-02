@@ -44,8 +44,6 @@ Route::middleware('token.auth')->group(function () {
     Route::post('/cart/clear', [CartController::class, 'clear']);
     Route::post('/logout', [AuthController::class, 'logout']);
     
-   
-
     Route::get('/addresses', [AddressController::class, 'index']);
     Route::post('/addresses', [AddressController::class, 'store']);
     Route::put('/addresses/{address}', [AddressController::class, 'update']);

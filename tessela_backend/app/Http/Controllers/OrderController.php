@@ -105,7 +105,6 @@ class OrderController extends Controller
         $query = Order::with('items.product')
             ->orderByDesc('created_at');
 
-        // 🔹 If not admin, only fetch their orders
         if ($account->role !== 'admin') {
             $query->where('account_id', $account->account_id);
         }

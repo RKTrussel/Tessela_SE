@@ -6,7 +6,7 @@ function MarketPlaceContainer() {
     return (
         <>
             <Navbar />
-            <hr />
+            <hr style={{position: 'sticky', top: '60px', zIndex: 2,}}/>
             <Marketplace />
             <Showcase />
         </>

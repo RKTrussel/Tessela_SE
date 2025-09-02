@@ -13,7 +13,7 @@ function ItemContainer() {
         <>
             <Navbar />
             <SecondNavbar />
-            <hr />
+            <hr style={{position: 'sticky', top: '123px', zIndex: 2,}}/>
             <Container fluid>
                 <Row className="justify-content-center">
                     <ImagePreview id={id} />

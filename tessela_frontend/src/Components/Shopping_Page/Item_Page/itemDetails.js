@@ -2,11 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import api from '../../../api';
 import Col from 'react-bootstrap/Col';
 
-function currency(n) {
-  if (n == null || isNaN(n)) return 'N/A';
-  return Number(n).toFixed(2);
-}
-
 function ItemDetails({ id }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -90,9 +85,6 @@ function ItemDetails({ id }) {
 
   if (loading) return <div>Loading...</div>;
 
-  const price = product?.price ?? null;
-  const regularPrice = price != null ? Number(price) * 1.1 : null;
-
   const addDisabled =
     adding || !itemId || maxQty === 0 || !quantity || quantity < 1;
 
@@ -106,11 +98,7 @@ function ItemDetails({ id }) {
       <p><strong>The Anniversary Sale</strong></p>
       <p>
         <span style={{ fontWeight: 'bold' }}>
-          Sale price ₱{currency(price)}
-        </span>
-        <br />
-        <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
-          Regular price ₱{regularPrice != null ? currency(regularPrice) : 'N/A'}
+          Price ₱{product?.price || 'No description available'}
         </span>
       </p>
 
@@ -146,7 +134,7 @@ function ItemDetails({ id }) {
         onClick={addToCart}
         disabled={addDisabled}
       >
-        {adding ? 'Adding…' : 'Add to shopping bag'}
+        {adding ? 'Adding…' : 'Add to Cart'}
       </button>
 
       {message && <div className="alert alert-success">{message}</div>}

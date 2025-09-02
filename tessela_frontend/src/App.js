@@ -34,13 +34,15 @@ function App() {
           {/* Everything below requires a logged-in user (blocks non-user from shop) */}
           <Route element={<RequireAuth />}>
             {/* Shopping Page (protected) */}
-            <Route path="/explore/:weavingType" element={<Explore />} />
-            <Route path="/product/:id" element={<ItemContainer />} />
-            <Route path="/shoppingBag" element={<ShoppingBagContainer />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/marketplace" element={<MarketPlaceContainer />} />
-            <Route path="/account" element={<AddressContainer />} />
-
+            <Route element={<RequireRole allow={['user']} />}>
+              <Route path="/explore/:weavingType" element={<Explore />} />
+              <Route path="/product/:id" element={<ItemContainer />} />
+              <Route path="/shoppingBag" element={<ShoppingBagContainer />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/marketplace" element={<MarketPlaceContainer />} />
+              <Route path="/account" element={<AddressContainer />} />
+            </Route>
+            
             {/* Admin-only area (blocks user & guest from admin) */}
             <Route element={<RequireRole allow={['admin']} />}>
               <Route path="/dashboard" element={<DashboardContainer />} />

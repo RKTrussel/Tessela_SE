@@ -33,14 +33,13 @@ export default function MyProducts() {
     condition: "New",
     images: [],
   });
-  const [productId, setProductId] = useState(null); // Store product id for editing
+  const [productId, setProductId] = useState(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const navigate = useNavigate();
   const rows = resp.data || [];
 
   const onEdit = (id) => {
-    // Fetch product details to populate the form inside the modal
-    setProductId(id);  // Store product ID for later use
+    setProductId(id);
 
     const fetchProduct = async () => {
       try {
@@ -52,30 +51,30 @@ export default function MyProducts() {
           price: response.data.price,
           stock: response.data.stock,
           condition: response.data.condition,
-          barcode_value: response.data.barcode_value, 
+          barcode_value: response.data.barcode_value,
           images: [],
         });
-        setEditModalOpen(true);  // Open modal after product is loaded
+        setEditModalOpen(true);
       } catch (err) {
         console.error("Failed to load product.");
       }
     };
 
-    fetchProduct();  // Call the function to load product details
+    fetchProduct();
   };
 
   const onDelete = async (id) => {
     const ok = window.confirm("Delete this product? This cannot be undone.");
     if (!ok) return;
     try {
-      setDeletingId(id);  // Start deleting process
-      await remove(id);   // Remove the product
-      fetchProducts(page); // Reload current page to reflect changes
+      setDeletingId(id);
+      await remove(id);
+      fetchProducts(page); // Reload current page
     } catch (e) {
       console.error(e);
       alert("Delete failed.");
     } finally {
-      setDeletingId(null); // End deleting process
+      setDeletingId(null);
     }
   };
 
@@ -88,10 +87,10 @@ export default function MyProducts() {
   };
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files); // Convert the FileList object into an array
+    const files = Array.from(e.target.files);
     setFormData((prevData) => ({
       ...prevData,
-      images: files, // Store the images as an array
+      images: files,
     }));
   };
 
@@ -99,18 +98,14 @@ export default function MyProducts() {
     e.preventDefault();
     const form = new FormData();
 
-    // Append all your fields
     form.append("name", formData.name);
     form.append("weaving_type", formData.weaving_type);
     form.append("description", formData.description);
     form.append("price", formData.price);
     form.append("stock", formData.stock);
     form.append("condition", formData.condition);
-
-    // Append _method to spoof PUT
     form.append("_method", "PUT");
 
-    // Append images if present
     if (formData.images && formData.images.length > 0) {
       Array.from(formData.images).forEach((img) => {
         form.append("images[]", img);
@@ -121,12 +116,11 @@ export default function MyProducts() {
     try {
       const response = await api.post(`/products/${productId}`, form, {
         headers: {
-          // "Content-Type: multipart/form-data" not supported on PUT; use _method='PUT' in FormData instead
-          "Content-Type": "multipart/form-data", 
+          "Content-Type": "multipart/form-data",
         },
       });
       console.log("Updated Product Response:", response.data);
-      alert("Product updated successfully!");
+      alert(`Product updated successfully! ID: ${response.data.product_id}`);
     } catch (err) {
       console.error("Failed to update product", err.response?.data || err);
       alert("Failed to update product.");
@@ -140,10 +134,8 @@ export default function MyProducts() {
     <Container fluid className="p-3">
       <h4 className="mb-3">My Products</h4>
 
-      {/* Add Product Button */}
       <ProductsToolbar onAdd={() => navigate("/dashboard/myProduct/addProduct")} />
 
-      {/* Filters Component */}
       <ProductsFilters
         search={filter.search}
         weaving_type={filter.weaving_type}
@@ -153,7 +145,6 @@ export default function MyProducts() {
         disabled={loading}
       />
 
-      {/* Loading State */}
       {loading && (
         <div className="text-center my-5">
           <Spinner animation="border" variant="primary" />
@@ -161,14 +152,12 @@ export default function MyProducts() {
         </div>
       )}
 
-      {/* Error State */}
       {err && (
         <Alert variant="danger">
           <strong>Error:</strong> {err}
         </Alert>
       )}
 
-      {/* Products Table */}
       {!loading && !err && (
         <ProductsTable
           rows={rows}
@@ -178,13 +167,12 @@ export default function MyProducts() {
           lastPage={resp.last_page}
           onPrev={() => fetchProducts(page - 1)}
           onNext={() => fetchProducts(page + 1)}
-          onEdit={onEdit} // Edit handler passed here
+          onEdit={onEdit}
           onDelete={onDelete}
           deletingId={deletingId}
         />
       )}
 
-      {/* Modal for Editing Product */}
       <Modal show={editModalOpen} onHide={() => setEditModalOpen(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Product</Modal.Title>

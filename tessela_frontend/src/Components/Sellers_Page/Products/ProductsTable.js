@@ -8,7 +8,7 @@ export default function ProductsTable({
   lastPage,
   onPrev,
   onNext,
-  onEdit,  // The edit function passed from the parent component
+  onEdit, 
   onDelete,
   deletingId,
 }) {
@@ -59,7 +59,7 @@ export default function ProductsTable({
               const variant =
                 quality >= 80 ? "success" : quality >= 50 ? "warning" : "danger";
               return (
-                <tr key={p.id}>
+                <tr key={p.product_id}>
                   <td>
                     <div className="d-flex align-items-center gap-3">
                       <img
@@ -72,7 +72,7 @@ export default function ProductsTable({
                       <div>
                         <div className="fw-semibold">{p.name}</div>
                         <div className="text-muted small">
-                          #{p.id} • {p.weaving_type} • {p.barcode_value}
+                          #{p.product_id} • {p.weaving_type} • {p.barcode_value}
                         </div>
                       </div>
                     </div>
@@ -89,17 +89,17 @@ export default function ProductsTable({
                       size="sm"
                       variant="outline-primary"
                       className="me-2"
-                      onClick={() => onEdit(p.id)}  // Trigger onEdit function
+                      onClick={() => onEdit(p.product_id)}  
                     >
                       Update
                     </Button>
                     <Button
                       size="sm"
                       variant="outline-danger"
-                      disabled={deletingId === p.id}
-                      onClick={() => onDelete(p.id)}
+                      disabled={deletingId === p.product_id}
+                      onClick={() => onDelete(p.product_id)}
                     >
-                      {deletingId === p.id ? "Deleting..." : "Delete"}
+                      {deletingId === p.product_id ? "Deleting..." : "Delete"}
                     </Button>
                   </td>
                 </tr>

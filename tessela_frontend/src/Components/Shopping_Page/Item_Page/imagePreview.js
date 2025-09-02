@@ -28,13 +28,13 @@ function ImagePreview({ id }) {
     return (
         <>
             <Col xs={1} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px', 
-                position: 'sticky', top: '20px', zIndex: 2, alignSelf: 'flex-start' }}>
+                position: 'sticky', top: '150px', zIndex: 2, alignSelf: 'flex-start' }}>
                 {images.map((img, idx) => (
                     <img key={idx} src={img.url} alt={`Preview ${idx}`} style={{ maxWidth: '80px', marginBottom: '10px', 
                         cursor: 'pointer', border: '2px solid transparent', maxHeight: '80px', background: '#fff' }} onClick={() => handleClick(idx)} />
                 ))}
             </Col>
-            <Col xs={5} style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', 
+            <Col className='my-2' xs={5} style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', 
                 alignContent: 'center' }}>
                 {images.map((img, idx) => (
                     <div key={idx}>

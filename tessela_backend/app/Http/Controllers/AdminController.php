@@ -74,15 +74,21 @@ class AdminController extends Controller
         if ($request->hasFile('images')) {
             // Delete old images (optional if you want to delete old images)
             foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image->path); // delete old files
-                $image->delete(); // delete the image record
+                Log::info('Deleting image:', ['image_id' => $image->id, 'path' => $image->path]);
+                if ($image->path && Storage::disk('public')->exists($image->path)) {
+                    // Delete image file from storage
+                    Storage::disk('public')->delete($image->path);
+                }
+
+                // Delete the image record from the database
+                $image->delete();
             }
 
             // Add new images
             foreach ($request->file('images') as $i => $file) {
-                $path = $file->store('products', 'public'); // store in 'public' disk
+                $path = $file->store('products', 'public'); // Store the image in 'products' folder
                 ProductImage::create([
-                    'product_id' => $product->product_id,
+                    'product_id' => $product->product_id,  // Correct foreign key
                     'path'       => $path,
                     'order'      => $i,
                 ]);

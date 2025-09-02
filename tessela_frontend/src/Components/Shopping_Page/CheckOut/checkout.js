@@ -117,10 +117,8 @@ export default function Checkout() {
       const orderId = data?.order_id ?? data?.id ?? data?.order?.id ?? null;
       setSuccessMsg(`Order placed successfully${orderId ? ` (Order #${orderId})` : ""}!`);
 
-      // ✅ clear checkout session
       sessionStorage.removeItem("checkoutItems");
 
-      // redirect to cart after 2 seconds
       setTimeout(() => {
         navigate("/shoppingBag");
       }, 2000);
@@ -140,7 +138,6 @@ export default function Checkout() {
 
   return (
     <Container className="mt-4">
-      <h3>Checkout</h3>
 
       {errorMsg && <Alert variant="danger" className="mt-3">{errorMsg}</Alert>}
       {successMsg && <Alert variant="success" className="mt-3">{successMsg}</Alert>}
@@ -224,7 +221,7 @@ export default function Checkout() {
                   Placing Order...
                 </>
               ) : (
-                `Place Order (${php(grandTotal)})`
+                `Checkout (${php(grandTotal)})`
               )}
             </Button>
           </div>

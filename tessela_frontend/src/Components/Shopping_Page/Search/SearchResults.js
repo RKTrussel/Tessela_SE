@@ -3,7 +3,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Spinner from 'react-bootstrap/Spinner';
-import Button from 'react-bootstrap/Button';
 
 const php = (n) => {
   const num = Number(n || 0);
@@ -51,7 +50,7 @@ export default function SearchResults({ q, loading, products, suggestions, onHid
           <div className="text-muted">No products found for “{q}”.</div>
         )}
 
-        <Row xs={2} md={3} lg={4} className="g-4">
+        <Row xs={2} md={3} lg={4} className="g-4 mb-5">
           {products.map(p => (
             <Col key={p.id}>
               <Link
@@ -96,17 +95,6 @@ export default function SearchResults({ q, loading, products, suggestions, onHid
             </Col>
           ))}
         </Row>
-
-        {(hasResults || q) && (
-          <div className="d-flex justify-content-center mt-4">
-            <Button
-              variant="dark"
-              onClick={() => { onHide(); navigate(`/search?q=${encodeURIComponent(q)}`); }}
-            >
-              VIEW ALL RESULTS
-            </Button>
-          </div>
-        )}
       </Col>
     </Row>
   );

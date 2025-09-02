@@ -14,7 +14,7 @@ function ExploreContainer() {
         <>
             <Navbar />
             <SecondNavbar />
-            <hr />
+            <hr style={{position: 'sticky', top: '123px', zIndex: 2,}}/>
             <ExploreImage />
             <hr />
             <ExploreStory />

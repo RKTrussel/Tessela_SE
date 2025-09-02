@@ -73,7 +73,6 @@ class UserController extends Controller
         $productId = (int) $data['product_id'];
         $quantity  = (int) ($data['quantity'] ?? 1);
 
-        // Find the user's latest cart OR create one
         $cart = $user->carts()->latest()->first()
             ?? $user->carts()->create(['total_price' => 0]);
 

@@ -7,10 +7,14 @@ use App\Models\Product;
 
 class ProductImage extends Model
 {
+    protected $primaryKey = 'product_images_id';
+
     protected $fillable = ['product_id','path','order'];
 
-    public function product() {
+    public function product()
+    {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
+
 
 }
