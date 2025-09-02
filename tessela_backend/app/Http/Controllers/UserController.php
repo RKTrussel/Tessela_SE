@@ -63,7 +63,7 @@ class UserController extends Controller
 
     public function addToCart(Request $request)
     {
-        $user = $request->user(); // 👈 resolved from Bearer token in middleware
+        $user = $request->user();
         Log::info('Incoming Request User:', $user->toArray());
         $data = $request->validate([
             'product_id' => 'required|integer|exists:products,product_id',
@@ -103,6 +103,29 @@ class UserController extends Controller
                     'subtotal'   => $p->price * $p->pivot->quantity,
                 ])->values(),
             ],
+        ]);
+    }
+
+    public function newestArrivals(Request $request)
+    {
+        $limit = $request->query('limit', 20);
+
+        $products = Product::with('images')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
+
+        // transform image URLs
+        $products->transform(function ($p) {
+            $p->images->transform(function ($img) {
+                $img->url = asset('storage/'.$img->path);
+                return $img;
+            });
+            return $p;
+        });
+
+        return response()->json([
+            'products' => $products,
         ]);
     }
 }

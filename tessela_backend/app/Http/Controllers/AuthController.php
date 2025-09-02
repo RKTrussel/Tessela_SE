@@ -73,4 +73,19 @@ class AuthController extends Controller
             'message' => 'Logout successful',
         ])->cookie('auth_token', '', -1); 
     }
+
+    public function me(Request $request)
+    {
+        $account = $request->user();
+
+        // Return only safe fields
+        return response()->json([
+            'account_id' => $account->account_id,
+            'name'       => $account->name,
+            'email'      => $account->email,
+            'gender'     => $account->gender,
+            'birthday'   => $account->birthday,
+            'role'       => $account->role,
+        ]);
+    }
 }
