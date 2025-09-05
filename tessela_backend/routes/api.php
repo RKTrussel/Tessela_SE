@@ -10,6 +10,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\BlogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +23,11 @@ use App\Http\Controllers\CampaignController;
 |
 */
 
-// Public routes (view campaigns)
+// Public routes
 Route::get('/campaigns', [CampaignController::class, 'index']);
 Route::get('/campaigns/{campaign}', [CampaignController::class, 'show']);
+Route::get('/blogs', [BlogController::class, 'index']);
+Route::get('/blogs/{blog}', [BlogController::class, 'show']);
 
 
 Route::post('/products', [AdminController::class, 'addItem']);
@@ -64,6 +67,10 @@ Route::middleware('token.auth')->group(function () {
     Route::patch('/campaigns/{campaign}/status', [CampaignController::class, 'updateStatus']);
     Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
     Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy']);
+
+    Route::post('/blogs', [BlogController::class, 'store']);
+    Route::put('/blogs/{blog}', [BlogController::class, 'update']);
+    Route::delete('/blogs/{blog}', [BlogController::class, 'destroy']);
 });
 
 // solo middleware

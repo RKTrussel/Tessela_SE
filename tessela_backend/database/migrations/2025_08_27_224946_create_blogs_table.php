@@ -6,28 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    public function up(): void
     {
         Schema::create('blogs', function (Blueprint $table) {
-            $table->id('blog_id');
+            $table->id('blog_id'); // <- custom PK
             $table->string('title');
-            $table->longText('content');
-            $table->dateTime('dateCreated')->useCurrent();
+            $table->string('author');
+            $table->text('content');
+            $table->date('date');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('blogs');
     }

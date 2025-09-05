@@ -2,84 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Blog;
 use Illuminate\Http\Request;
+use App\Models\Blog;
+use App\Models\BlogImage;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class BlogController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // List all blogs
     public function index()
     {
-        //
+        $blogs = Blog::with('images')->get();
+
+        // Only send image paths
+        $blogs->transform(function ($blog) {
+            $blog->images = $blog->images->pluck('path'); 
+            return $blog;
+        });
+
+        return response()->json($blogs);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    // Show single blog
+    public function show($blog_id)
     {
-        //
+        $blog = Blog::with('images')->findOrFail($blog_id);
+        $blog->images = $blog->images->pluck('path'); // Only paths
+        return response()->json($blog);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Store new blog
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'content' => 'required|string',
+            'date' => 'required|string',
+            'images.*' => 'nullable|image|max:2048', // max 2MB per image
+        ]);
+
+        // Convert date to YYYY-MM-DD
+        try {
+            $date = Carbon::createFromFormat('m/d/Y', $request->date)->format('Y-m-d');
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid date format'], 422);
+        }
+
+        // Create blog
+        $blog = Blog::create([
+            'title' => $request->title,
+            'author' => $request->author,
+            'content' => $request->content,
+            'date' => $date,
+        ]);
+
+        // Handle images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $idx => $image) {
+                $path = $image->store('blogs', 'public'); // stores in storage/app/public/blogs
+                BlogImage::create([
+                    'blog_id' => $blog->blog_id,
+                    'path' => $path,
+                    'order' => $idx + 1,
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Blog created successfully', 'blog' => $blog], 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Blog  $blog
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Blog $blog)
+    // Delete blog
+    public function destroy($blog_id)
     {
-        //
-    }
+        $blog = Blog::findOrFail($blog_id);
+        
+        // Delete associated images files from storage
+        foreach ($blog->images as $img) {
+            Storage::disk('public')->delete($img->path);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Blog  $blog
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Blog $blog)
-    {
-        //
-    }
+        $blog->delete();
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Blog  $blog
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Blog $blog)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Blog  $blog
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Blog $blog)
-    {
-        //
+        return response()->json(['message' => 'Blog deleted successfully']);
     }
 }

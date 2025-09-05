@@ -1,6 +1,6 @@
 import SideNavbar from "../../Sellers_Page/Sellers_Info/sideNavbar";
-import MyCampaign from "../MyCampaign";
-import AddCampaign from "../AddCampaign";
+import MyBlog from "../MyBlog";
+import CreateBlog from "../Blog_Creation/CreateBlog";
 import { TopCustomNav } from "../../Sellers_Page/Product_add/topCustomNav";
 
 const containerStyle = {
@@ -9,36 +9,36 @@ const containerStyle = {
     minHeight: '94vh'
 };
 
-export function MyCampaignContainer() {
+export function MyBlogContainer() {
     return (
         <>
-            <TopCustomNav 
+            <TopCustomNav
                 breadcrumbs={[
                     { label: 'Home', path: '/dashboard' },
-                    { label: 'My Campaigns' }
+                    { label: 'My Blog' }
                 ]}
             />
             <div className="d-flex" style={containerStyle}>
                 <SideNavbar />
-                <MyCampaign />
+                <MyBlog />
             </div>
         </>
     );
 }
 
-export function AddCampaignContainer() {
+export function AddBlogContainer() {
     return (
         <>
-            <TopCustomNav 
+            <TopCustomNav
                 breadcrumbs={[
                     { label: 'Home', path: '/dashboard' },
-                    { label: 'My Campaigns', path: '/dashboard/myCampaign' },
-                    { label: 'Add Campaign' }
+                    { label: 'My Blog', path: '/dashboard/myBlog' },
+                    { label: 'Add Blog' }
                 ]}
             />
             <div className="d-flex" style={containerStyle}>
                 <SideNavbar />
-                <AddCampaign />
+                <CreateBlog />
             </div>
         </>
     );

@@ -3,7 +3,13 @@ import TopNavbar from "../Sellers_Info/topNavbar";
 import SellerDashboard from "../Sellers_Info/dashboardInfo";
 import MyOrders from "../Orders/myOrders";
 import MyProducts from "../Products/myProducts";
-import { TopCustomNav3 , TopCustomNav2 } from "../Product_add/topCustomNav";
+import { TopCustomNav } from "../Product_add/topCustomNav";
+
+const containerStyle = {
+    display: 'flex',
+    background: '#f5f5f5',
+    minHeight: '94vh'
+};
 
 export function DashboardContainer() {
     return (
@@ -20,8 +26,13 @@ export function DashboardContainer() {
 export function MyOrderContainer() {
     return (
         <>
-            <TopCustomNav3 />
-            <div className="d-flex" style={{display: 'flex' , background: '#f5f5f5' , minHeight: '94vh'}}>
+            <TopCustomNav 
+                breadcrumbs={[
+                    { label: 'Home', path: '/dashboard' },
+                    { label: 'My Orders' }
+                ]}
+            />
+            <div className="d-flex" style={containerStyle}>
                 <SideNavbar />
                 <MyOrders />
             </div>
@@ -29,16 +40,19 @@ export function MyOrderContainer() {
     );
 }
 
-
 export function MyProductContainer() {
     return (
         <>
-            <TopCustomNav2 />
-            <div className="d-flex" style={{display: 'flex' , background: '#f5f5f5' , minHeight: '94vh'}}>
+            <TopCustomNav 
+                breadcrumbs={[
+                    { label: 'Home', path: '/dashboard' },
+                    { label: 'My Products' }
+                ]}
+            />
+            <div className="d-flex" style={containerStyle}>
                 <SideNavbar />
                 <MyProducts />
             </div>
-            
         </>
     );
 }

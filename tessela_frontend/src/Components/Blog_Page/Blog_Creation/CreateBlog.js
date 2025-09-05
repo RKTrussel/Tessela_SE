@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
+import { useEffect, useRef, useState } from "react";
+import { Container, Row, Col, Form, Button, Card, Spinner } from "react-bootstrap";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import api from '../../../api';
+import { useNavigate } from "react-router-dom";
 
 export default function CreateBlog({ onSave }) {
   const [title, setTitle] = useState("");
@@ -10,18 +11,18 @@ export default function CreateBlog({ onSave }) {
   const [images, setImages] = useState([]);
   const [date] = useState(new Date().toLocaleDateString());
   const [content, setContent] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const quillRef = useRef(null);
   const quillInstance = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-  if (quillRef.current && !quillRef.current.__quill) {
-    const quill = new Quill(quillRef.current, {
-      theme: "snow",
-      placeholder: "Write your blog content here...",
-      modules: {
-        toolbar: {
-          container: [
+    if (quillRef.current && !quillRef.current.__quill) {
+      const quill = new Quill(quillRef.current, {
+        theme: "snow",
+        placeholder: "Write your blog content here...",
+        modules: {
+          toolbar: [
             [{ header: [1, 2, false] }],
             ["bold", "italic", "underline"],
             [{ list: "ordered" }, { list: "bullet" }],
@@ -29,83 +30,48 @@ export default function CreateBlog({ onSave }) {
             ["link", "image"],
             ["clean"],
           ],
-          handlers: {
-            image: function () {
-              const input = document.createElement("input");
-              input.setAttribute("type", "file");
-              input.setAttribute("accept", "image/*");
-              input.click();
-
-              input.onchange = async () => {
-                const file = input.files[0];
-                if (file) {
-                  const formData = new FormData();
-                  formData.append("image", file);
-
-                  try {
-                    const res = await api.post("/upload-image", formData, {
-                      headers: { "Content-Type": "multipart/form-data" },
-                    });
-
-                    const { url } = res.data;
-                    if (url) {
-                      const range = this.quill.getSelection();
-                      this.quill.insertEmbed(range.index, "image", url);
-                    }
-                  } catch (error) {
-                    console.error("Image upload failed:", error);
-                  }
-                }
-              };
-            },
-          },
         },
-      },
-    });
-
-    quillRef.current.__quill = quill;
-
-    quill.on("text-change", () => {
-      setContent(quill.root.innerHTML);
-    });
-  }
-}, []);
-
-  // Handle drag & drop images
-  const handleDrop = async (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const res = await api.post("/upload-image", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const { url } = res.data;
-      if (url) {
-        setImages((prev) => [...prev, url]);
-      }
-    } catch (error) {
-      console.error("Drag-drop upload failed:", error);
+      quillRef.current.__quill = quill;
+      quillInstance.current = quill;
+
+      quill.on("text-change", () => {
+        setContent(quill.root.innerHTML);
+      });
     }
+  }, []);
+
+  const handleImageChange = (e) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const uploadedImages = [];
+    for (let i = 0; i < files.length; i++) {
+      uploadedImages.push(files[i]);
+    }
+    setImages(uploadedImages);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newPost = {
-      title,
-      author,
-      date,
-      images,
-      content,
-    };
+    setLoading(true);
 
     try {
-      const res = await api.post("/blogs", newPost); // ✅ send to backend
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("author", author);
+      formData.append("date", date);
+      formData.append("content", content);
+
+      images.forEach((img) => {
+        formData.append("images[]", img); // ✅ multiple images like campaign
+      });
+
+      const res = await api.post("/blogs", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       if (onSave) onSave(res.data);
 
       // Reset form
@@ -114,8 +80,11 @@ export default function CreateBlog({ onSave }) {
       setImages([]);
       setContent("");
       quillInstance.current.root.innerHTML = "";
+      setLoading(false);
+      navigate("/dashboard/myBlogs"); // redirect after saving
     } catch (error) {
       console.error("Blog save failed:", error);
+      setLoading(false);
     }
   };
 
@@ -151,23 +120,24 @@ export default function CreateBlog({ onSave }) {
                 />
               </Form.Group>
 
-              {/* Drag & Drop Images */}
-              <Form.Group
-                className="mb-3 p-3 border rounded text-center bg-light"
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleDrop}
-              >
-                <Form.Label>Drag & Drop Images Here</Form.Label>
-                <div className="mt-2">
+              {/* Image Upload */}
+              <Form.Group className="mb-3">
+                <Form.Label>Upload Images</Form.Label>
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
+                />
+                <div className="mt-2 d-flex flex-wrap gap-2">
                   {images.length > 0 &&
-                    images.map((url, idx) => (
+                    images.map((file, idx) => (
                       <img
                         key={idx}
-                        src={url}
-                        alt="uploaded"
+                        src={URL.createObjectURL(file)}
+                        alt="preview"
                         style={{
                           maxHeight: "100px",
-                          marginRight: "10px",
                           borderRadius: "8px",
                         }}
                       />
@@ -188,9 +158,14 @@ export default function CreateBlog({ onSave }) {
                 />
               </Form.Group>
 
-              <Button variant="success" type="submit">
-                Save Post
-              </Button>
+              <div className="d-flex gap-2">
+                <Button variant="secondary" onClick={() => navigate('/dashboard/myBlogs')}>
+                  Cancel
+                </Button>
+                <Button variant="success" type="submit" disabled={loading}>
+                  {loading ? <Spinner size="sm" animation="border" /> : 'Save Post'}
+                </Button>
+              </div>
             </Form>
           </Card>
         </Col>

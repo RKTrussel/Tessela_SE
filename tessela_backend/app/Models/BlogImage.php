@@ -2,26 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BlogImage extends Model
 {
-   protected $primaryKey = 'imageId';
+    protected $primaryKey = 'blog_images_id'; // custom ID
+    protected $fillable = ['blog_id', 'path', 'order'];
 
-   protected $fillable = [
-       'blogId',
-       'imageUrl',
-   ];
-
-   public function blog()
-   {
-     return $this->belongsTo(Blog::class, 'blogId');
-   }
-
-   public static function getImage($blogId): ?string
-   {
-     $image = self::where('blogId', $blogId)->first();
-     return $image ? $image->imageUrl : null;
-   }
+    public function blog()
+    {
+        return $this->belongsTo(Blog::class, 'blog_id', 'blog_id');
+    }
 }

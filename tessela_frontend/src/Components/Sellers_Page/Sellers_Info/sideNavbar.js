@@ -78,6 +78,39 @@ function SideNavbar() {
         </Collapse>
       </div>
 
+      {/* Blogs Section */}
+      <div className="mb-2 w-100">
+        <Button
+          variant="outline-primary"
+          className="w-100 text-start"
+          onClick={() => handleToggle('blogs')}
+          aria-expanded={open.blogs}
+        >
+          Blogs
+        </Button>
+
+        <Collapse in={open.blogs}>
+          <div>
+            <div className="list-group w-100 mt-2">
+              <button
+                type="button"
+                className="list-group-item list-group-item-action text-start"
+                onClick={() => navigate('/dashboard/myBlogs')}
+              >
+                My Blogs
+              </button>
+              <button
+                type="button"
+                className="list-group-item list-group-item-action text-start"
+                onClick={() => navigate('/dashboard/myBlog/addBlogs')}
+              >
+                Add New Blogs
+              </button>
+            </div>
+          </div>
+        </Collapse>
+      </div>
+
       {/* Campaigns Section */}
       <div className="mb-2 w-100">
         <Button

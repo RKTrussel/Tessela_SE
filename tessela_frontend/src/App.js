@@ -14,6 +14,7 @@ import HomeBlogPage from './Components/Blog_Page/HomeBlogPage';
 import { DashboardContainer, MyOrderContainer , MyProductContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
 import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
 import { MyCampaignContainer, AddCampaignContainer } from './Components/Campaign/Container/CampaignContainer';
+import { MyBlogContainer , AddBlogContainer } from './Components/Blog_Page/Container/BlogContainer';
 
 import AuthContainer from './Components/Auth/Container/AuthContainer';
 
@@ -57,6 +58,8 @@ function App() {
               <Route path="/dashboard/myProduct/addProduct" element={<ProductAddContainer />} />
               <Route path="/dashboard/myCampaign" element={<MyCampaignContainer />} />
               <Route path="/dashboard/myCampaign/addCampaign" element={<AddCampaignContainer />} />
+              <Route path="/dashboard/myBlog" element={<MyBlogContainer />} />
+              <Route path="/dashboard/myBlog/addBlogs" element={<AddBlogContainer />} />
             </Route>
           </Route>
         </Routes>

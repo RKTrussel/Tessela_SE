@@ -12,7 +12,7 @@ const SellerDashboard = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const response = await api.get("/campaigns"); // Fetch campaigns from API
+        const response = await api.get("/campaigns");
         setCampaigns(response.data);
         setLoading(false);
       } catch (error) {

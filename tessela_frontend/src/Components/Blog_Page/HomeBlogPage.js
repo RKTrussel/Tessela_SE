@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import Navbar from "../Shopping_Page/Navbar/Navbar";
 import SecondNavbar from "../Shopping_Page/Navbar/SecondNavbar";
