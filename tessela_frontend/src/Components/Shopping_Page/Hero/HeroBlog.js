@@ -14,7 +14,7 @@ const HeroBlog = () => {
                         <Col className="hero-blog-left">
                             <h2>Rediscovering Indigenous Art</h2>
                             <p>Read the stories of Indigenous artisans and their craft.</p>
-                            <Link to="/marketplace" className="marketplace-link mt-3">
+                            <Link to="/blog" className="marketplace-link mt-3">
                                 Visit Blog
                             </Link>
                         </Col>

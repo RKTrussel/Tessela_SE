@@ -9,8 +9,11 @@ import Checkout from './Components/Shopping_Page/CheckOut/checkout';
 import MarketPlaceContainer from './Components/Shopping_Page/Containers/marketPlaceContainer';
 import AddressContainer from './Components/Shopping_Page/Containers/addressContainer';
 
+import HomeBlogPage from './Components/Blog_Page/HomeBlogPage';
+
 import { DashboardContainer, MyOrderContainer , MyProductContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
 import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
+import CreateBlog from './Components/Blog_Page/Blog_Creation/CreateBlog';
 
 import AuthContainer from './Components/Auth/Container/AuthContainer';
 
@@ -19,12 +22,15 @@ import RequireAuth from './Components/Auth/Guards/RequireAuth';
 import RequireRole from './Components/Auth/Guards/RequireRole';
 import GuestOnly from './Components/Auth/Guards/GuestOnly';
 
+
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/blog" element={<HomeBlogPage />} />
           
           {/* Guests should NOT reach /auth if already logged in */}
           <Route element={<GuestOnly />}>
@@ -49,6 +55,7 @@ function App() {
               <Route path="/dashboard/myProduct" element={<MyProductContainer />} />
               <Route path="/dashboard/myOrder" element={<MyOrderContainer />} />
               <Route path="/dashboard/myProduct/addProduct" element={<ProductAddContainer />} />
+              <Route path="/dashboard/createBlog" element={<CreateBlog />} />
             </Route>
           </Route>
         </Routes>
