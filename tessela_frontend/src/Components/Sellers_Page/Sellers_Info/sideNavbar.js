@@ -4,7 +4,7 @@ import Collapse from 'react-bootstrap/Collapse';
 import { useNavigate } from 'react-router-dom';
 
 function SideNavbar() {
-  const [open, setOpen] = useState({ products: false, orders: false });
+  const [open, setOpen] = useState({ products: false, orders: false, campaigns: false });
   const navigate = useNavigate();
 
   const handleToggle = (key) => {
@@ -19,6 +19,7 @@ function SideNavbar() {
       className="d-flex flex-column bg-white p-3"
       style={{ width: 240, minHeight: '94vh' }}
     >
+      {/* Orders Section */}
       <div className="mb-2 w-100">
         <Button
           variant="outline-primary"
@@ -44,6 +45,7 @@ function SideNavbar() {
         </Collapse>
       </div>
 
+      {/* Products Section */}
       <div className="mb-2 w-100">
         <Button
           variant="outline-primary"
@@ -70,6 +72,39 @@ function SideNavbar() {
                 onClick={() => navigate('/dashboard/myProduct/addProduct')}
               >
                 Add New Product
+              </button>
+            </div>
+          </div>
+        </Collapse>
+      </div>
+
+      {/* Campaigns Section */}
+      <div className="mb-2 w-100">
+        <Button
+          variant="outline-primary"
+          className="w-100 text-start"
+          onClick={() => handleToggle('campaigns')}
+          aria-expanded={open.campaigns}
+        >
+          Campaign
+        </Button>
+
+        <Collapse in={open.campaigns}>
+          <div>
+            <div className="list-group w-100 mt-2">
+              <button
+                type="button"
+                className="list-group-item list-group-item-action text-start"
+                onClick={() => navigate('/dashboard/myCampaign')}
+              >
+                My Campaigns
+              </button>
+              <button
+                type="button"
+                className="list-group-item list-group-item-action text-start"
+                onClick={() => navigate('/dashboard/myCampaign/addCampaign')}
+              >
+                Add New Campaign
               </button>
             </div>
           </div>

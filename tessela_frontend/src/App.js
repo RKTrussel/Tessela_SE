@@ -11,6 +11,7 @@ import AddressContainer from './Components/Shopping_Page/Containers/addressConta
 
 import { DashboardContainer, MyOrderContainer , MyProductContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
 import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
+import { MyCampaignContainer, AddCampaignContainer } from './Components/Campaign/Container/CampaignContainer';
 
 import AuthContainer from './Components/Auth/Container/AuthContainer';
 
@@ -49,6 +50,8 @@ function App() {
               <Route path="/dashboard/myProduct" element={<MyProductContainer />} />
               <Route path="/dashboard/myOrder" element={<MyOrderContainer />} />
               <Route path="/dashboard/myProduct/addProduct" element={<ProductAddContainer />} />
+              <Route path="/dashboard/myCampaign" element={<MyCampaignContainer />} />
+              <Route path="/dashboard/myCampaign/addCampaign" element={<AddCampaignContainer />} />
             </Route>
           </Route>
         </Routes>

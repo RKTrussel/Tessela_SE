@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CampaignController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,10 @@ use App\Http\Controllers\OrderController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+// Public routes (view campaigns)
+Route::get('/campaigns', [CampaignController::class, 'index']);
+Route::get('/campaigns/{campaign}', [CampaignController::class, 'show']);
 
 
 Route::post('/products', [AdminController::class, 'addItem']);
@@ -54,6 +59,11 @@ Route::middleware('token.auth')->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show']);
 
     Route::patch('/admin/orders/{order}/status', [OrderController::class, 'updateStatus']);
+
+    Route::post('/campaigns', [CampaignController::class, 'store']);
+    Route::patch('/campaigns/{campaign}/status', [CampaignController::class, 'updateStatus']);
+    Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
+    Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy']);
 });
 
 // solo middleware
