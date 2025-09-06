@@ -99,9 +99,13 @@ const MyOrders = () => {
             <tbody>
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center">
-                    <p>No Orders Found</p>
-                    <Button variant="outline-primary" onClick={fetchOrders}>Reload</Button>
+                  <td colSpan="6" className="text-center py-5 text-muted">
+                    <div>
+                      <div style={{ fontSize: "48px" }}>📦</div>
+                      No Orders Found
+                      <div className="mt-2">
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (

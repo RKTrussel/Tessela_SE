@@ -2,54 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Blog;
+use App\Models\Account;
 
 class Like extends Model
 {
-    
-    protected $primaryKey = "likeId";
+    protected $primaryKey = 'like_id';
+    protected $fillable = ['user_id','blog_id'];
 
-    protected $fillable = [
-        'userId',
-        'blogId',
-        'date',
-    ];
-
-    public function blog()
-    {
-        return $this->belongsTo(Blog::class, 'blogId');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'userId');
-    }
-
-    public static function addLike(int $userId, int $blogId): void
-    {
-        if(!self::isLiked($userId, $blogId)) {
-            self::create([
-                'userId' => $userId,
-                'blogId' => $blogId,
-                'date' => now(),
-            ]);
-        }
-    }
-
-    public static function removeLike(int $userId, int $blogId): void
-    {
-        self::where([
-            'userId' => $userId,
-            'blogId' => $blogId,
-        ])->delete();
-    }
-
-    public static function isLiked(int $userId, int $blogId): bool
-    {
-        return self::where([
-            'userId' => $userId,
-            'blogId' => $blogId,
-        ])->exists();
-    }
+    public function blog() { return $this->belongsTo(Blog::class, 'blog_id', 'blog_id'); }
+    public function user() { return $this->belongsTo(Account::class, 'user_id', 'account_id'); }
 }

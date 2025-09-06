@@ -95,7 +95,7 @@ function SideNavbar() {
               <button
                 type="button"
                 className="list-group-item list-group-item-action text-start"
-                onClick={() => navigate('/dashboard/myBlogs')}
+                onClick={() => navigate('/dashboard/myBlog')}
               >
                 My Blogs
               </button>

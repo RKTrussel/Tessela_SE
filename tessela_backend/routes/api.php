@@ -11,6 +11,8 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +46,7 @@ Route::get('/products/{id}', [UserController::class, 'viewItemDetails']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+
 Route::middleware('token.auth')->group(function () {
     Route::post('/cart/add', [UserController::class, 'addToCart']);
     Route::get('/cart', [CartController::class, 'show']);
@@ -71,6 +74,14 @@ Route::middleware('token.auth')->group(function () {
     Route::post('/blogs', [BlogController::class, 'store']);
     Route::put('/blogs/{blog}', [BlogController::class, 'update']);
     Route::delete('/blogs/{blog}', [BlogController::class, 'destroy']);
+
+    
+    Route::get('/blogs/{blog}/comments', [CommentController::class, 'index']);  
+
+    Route::post('/blogs/{blog}/comments', [CommentController::class, 'store']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+    Route::post('/blogs/{blog}/like', [LikeController::class, 'toggle']);
 });
 
 // solo middleware

@@ -6,7 +6,7 @@ export default function ProductsToolbar({ onAdd }) {
   return (
     <Row className="align-items-center my-3">
       <Col className="text-end">
-        <Button variant="danger" onClick={onAdd}>
+        <Button variant="primary" onClick={onAdd}>
           + Add a New Product
         </Button>
       </Col>

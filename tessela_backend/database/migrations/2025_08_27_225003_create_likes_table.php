@@ -20,9 +20,11 @@ return new class extends Migration
             $table->timestamp('date')->useCurrent();
             $table->timestamps();
 
-            // Now this matches correctly
+            // Foreign key
             $table->foreign('user_id')->references('account_id')->on('accounts')->onDelete('cascade');
             $table->foreign('blog_id')->references('blog_id')->on('blogs')->onDelete('cascade');
+
+            $table->unique(['user_id', 'blog_id']);
         });
     }
 

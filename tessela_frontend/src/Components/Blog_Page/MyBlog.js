@@ -86,51 +86,51 @@ const MyBlog = () => {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="text-center">
-                    <Spinner animation="border" size="sm" /> Loading...
-                  </td>
-                </tr>
-              ) : blogs.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="text-center">
-                    No blogs found.
-                    <div className="mt-2">
-                      <Button variant="outline-primary" onClick={fetchBlogs}>
-                        Reload
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                blogs.map((b) => (
-                  <tr key={b.blog_id}>
-                    <td>#{b.blog_id}</td>
-                    <td>{b.title}</td>
-                    <td>{b.author}</td>
-                    <td>{b.status || "draft"}</td>
-                    <td>{new Date(b.created_at).toLocaleString()}</td>
-                    <td className="d-flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="info"
-                        onClick={() => navigate(`/dashboard/myBlog/edit/${b.blog_id}`)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onClick={() => handleDeleteBlog(b.blog_id)}
-                      >
-                        Delete
-                      </Button>
+                {loading ? (
+                    <tr>
+                    <td colSpan="6" className="text-center">
+                        <Spinner animation="border" size="sm" /> Loading...
                     </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+                    </tr>
+                ) : blogs.length === 0 ? (
+                    <tr>
+                    <td colSpan="6" className="text-center py-5 text-muted">
+                        <div>
+                        <div style={{ fontSize: "48px" }}>📝</div>
+                        No Blogs Found
+                        <div className="mt-2">
+                        </div>
+                        </div>
+                    </td>
+                    </tr>
+                ) : (
+                    blogs.map((b) => (
+                    <tr key={b.blog_id}>
+                        <td>#{b.blog_id}</td>
+                        <td>{b.title}</td>
+                        <td>{b.author}</td>
+                        <td>{b.status || "draft"}</td>
+                        <td>{new Date(b.created_at).toLocaleString()}</td>
+                        <td className="d-flex gap-2">
+                        <Button
+                            size="sm"
+                            variant="info"
+                            onClick={() => navigate(`/dashboard/myBlog/edit/${b.blog_id}`)}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => handleDeleteBlog(b.blog_id)}
+                        >
+                            Delete
+                        </Button>
+                        </td>
+                    </tr>
+                    ))
+                )}
+                </tbody>
           </Table>
         </Col>
       </Row>

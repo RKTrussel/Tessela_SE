@@ -1,17 +1,108 @@
-import React from "react";
-import { Container, Row, Col, Button, Image, Carousel } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Container, Row, Col, Button, Image, Carousel, Form, ListGroup, Spinner } from "react-bootstrap";
+import api from "../../api";
 
 export default function BlogDetail({ post, onBack }) {
+  const safePost = post ?? {};
+  const blogId = safePost.blog_id;
+
+  const [likes, setLikes] = useState(safePost.likes_count ?? 0);
+  const [liked, setLiked] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
+
+  const [comments, setComments] = useState([]);
+  const [cmtContent, setCmtContent] = useState("");
+  const [cmtLoading, setCmtLoading] = useState(true);
+  const [cmtSubmitting, setCmtSubmitting] = useState(false);
+  const [cmtError, setCmtError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      if (!blogId) { setCmtLoading(false); return; }
+      try {
+        setCmtLoading(true);
+        const [cmtRes, blogRes] = await Promise.allSettled([
+          api.get(`/blogs/${blogId}/comments`),
+          api.get(`/blogs/${blogId}`),
+        ]);
+
+        if (isMounted && cmtRes.status === "fulfilled") {
+          setComments(cmtRes.value.data || []);
+        }
+        if (isMounted && blogRes.status === "fulfilled") {
+          const data = blogRes.value.data || {};
+          if (typeof data.likes_count === "number") setLikes(data.likes_count);
+          if (typeof data.liked === "boolean") setLiked(data.liked);
+        }
+      } finally {
+        if (isMounted) setCmtLoading(false);
+      }
+    };
+    load();
+    return () => { isMounted = false; };
+  }, [blogId]);
+
+  const handleLike = async () => {
+    if (likeLoading || !blogId) return;
+    setLikeLoading(true);
+    setLiked(prev => !prev);
+    setLikes(prev => prev + (liked ? -1 : 1));
+    try {
+      const { data } = await api.post(`/blogs/${blogId}/like`);
+      if (typeof data.likes_count === "number") setLikes(data.likes_count);
+      if (typeof data.liked === "boolean") setLiked(data.liked);
+    } catch {
+      setLiked(prev => !prev);
+      setLikes(prev => prev + (liked ? 1 : -1));
+    } finally {
+      setLikeLoading(false);
+    }
+  };
+
+  const submitComment = async (e) => {
+    e.preventDefault();
+    setCmtError("");
+    if (!cmtContent.trim()) {
+      setCmtError("Comment cannot be empty.");
+      return;
+    }
+    if (!blogId) return;
+
+    setCmtSubmitting(true);
+    const tempId = `temp-${Date.now()}`;
+    const optimistic = {
+      comment_id: tempId,
+      author: "You",
+      content: cmtContent,
+      created_at: new Date().toISOString(),
+      _optimistic: true,
+    };
+    setComments(prev => [optimistic, ...prev]);
+
+    try {
+      // ✅ send `content`
+      const { data } = await api.post(`/blogs/${blogId}/comments`, { content: cmtContent });
+      // server returns comment with `comment_id` + `content`
+      setComments(prev => [data, ...prev.filter(c => c.comment_id !== tempId)]);
+      setCmtContent("");
+    } catch {
+      setCmtError("Failed to post comment. Please try again.");
+      setComments(prev => prev.filter(c => c.comment_id !== tempId));
+    } finally {
+      setCmtSubmitting(false);
+    }
+  };
+
   if (!post) return <p>No post selected.</p>;
 
   return (
     <Container className="mt-4">
       <Row className="justify-content-center">
         <Col md={10} lg={8}>
-          {/* Headline Image (first image only) */}
-          {post.images && post.images.length > 0 && (
+          {post.images?.length > 0 && (
             <Image
-              src={post.images[0]}
+              src={post.images[0]?.url}
               alt={post.title}
               fluid
               rounded
@@ -19,52 +110,85 @@ export default function BlogDetail({ post, onBack }) {
             />
           )}
 
-          {/* Blog Title (left aligned) */}
           <h1 className="fw-bold text-start">{post.title}</h1>
           <p className="text-muted text-start">
             By <strong>{post.author}</strong> • {post.date}
           </p>
 
-          {/* Blog Content (center aligned) */}
-          <div className="text-center mb-4">
-            <p
-              className="fs-5"
-              style={{ lineHeight: "1.8", whiteSpace: "pre-line" }}
-            >
-              {post.content}
-            </p>
+          <div className="d-flex gap-2 align-items-center mb-3">
+            <Button variant={liked ? "danger" : "outline-danger"} onClick={handleLike} disabled={likeLoading}>
+              {likeLoading ? <Spinner size="sm" animation="border" /> : liked ? "♥ Liked" : "♡ Like"}
+            </Button>
+            <span className="text-muted">{likes} {likes === 1 ? "like" : "likes"}</span>
+            <div className="ms-auto">
+              <Button variant="secondary" onClick={onBack}>← Back to Home</Button>
+            </div>
           </div>
 
-          {/* Gallery Carousel (after content) */}
-          {post.images && post.images.length > 1 && (
+          <div className="text-center mb-4">
+            <div
+              className="fs-5"
+              style={{ lineHeight: "1.8", whiteSpace: "pre-line" }}
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          </div>
+
+          {post.images?.length > 1 && (
             <Carousel className="mb-4 shadow-lg">
               {post.images.slice(1).map((img, index) => (
                 <Carousel.Item key={index}>
                   <Image
-                    src={img}
+                    src={img?.url}
                     alt={`gallery-${index}`}
                     fluid
                     rounded
                     className="d-block mx-auto"
                   />
-                  {post.captions && post.captions[index + 1] && (
-                    <Carousel.Caption>
-                      <p className="bg-dark bg-opacity-50 p-2 rounded">
-                        {post.captions[index + 1]}
-                      </p>
-                    </Carousel.Caption>
-                  )}
                 </Carousel.Item>
               ))}
             </Carousel>
           )}
 
-          {/* Back Button (left aligned) */}
-          <div className="text-start mt-3">
-            <Button variant="secondary" onClick={onBack}>
-              ← Back to Home
+          <h4 className="mt-4">Comments</h4>
+          <Form onSubmit={submitComment} className="mb-3">
+            <Form.Group className="mb-2">
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Write a comment…"
+                value={cmtContent}
+                onChange={(e) => setCmtContent(e.target.value)}
+                disabled={cmtSubmitting}
+              />
+            </Form.Group>
+            {cmtError && <div className="text-danger mb-2">{cmtError}</div>}
+            <Button type="submit" disabled={cmtSubmitting}>
+              {cmtSubmitting ? <Spinner size="sm" animation="border" /> : "Post Comment"}
             </Button>
-          </div>
+          </Form>
+
+          {cmtLoading ? (
+            <div className="text-center py-3"><Spinner animation="border" /></div>
+          ) : comments.length === 0 ? (
+            <p className="text-muted">No comments yet. Be the first!</p>
+          ) : (
+            <ListGroup variant="flush" className="mb-5">
+              {comments.map((c) => (
+                <ListGroup.Item key={c.comment_id ?? c.id} className="px-0">
+                  <div className="d-flex justify-content-between">
+                    <strong>{c.user?.name || c.author}</strong>
+                    <small className="text-muted">
+                      {new Date(c.created_at).toLocaleString()}
+                      {c._optimistic && " • sending…"}
+                    </small>
+                  </div>
+                  <div className="mt-1" style={{ whiteSpace: "pre-wrap" }}>
+                    {c.content}
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
         </Col>
       </Row>
     </Container>

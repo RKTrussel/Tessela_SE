@@ -81,7 +81,7 @@ export default function CreateBlog({ onSave }) {
       setContent("");
       quillInstance.current.root.innerHTML = "";
       setLoading(false);
-      navigate("/dashboard/myBlogs"); // redirect after saving
+      navigate("/dashboard/myBlog"); // redirect after saving
     } catch (error) {
       console.error("Blog save failed:", error);
       setLoading(false);

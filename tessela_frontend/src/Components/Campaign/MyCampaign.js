@@ -91,18 +91,18 @@ const MyCampaign = () => {
                 </tr>
               ) : campaigns.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center">
-                    No campaigns found.
-                    <div className="mt-2">
-                      <Button variant="outline-primary" onClick={fetchCampaigns}>
-                        Reload
-                      </Button>
+                  <td colSpan={8} className="text-center py-5 text-muted">
+                    <div>
+                      <div style={{ fontSize: "48px" }}>📢</div>
+                      No Campaigns Found
+                      <div className="mt-2">
+                      </div>
                     </div>
                   </td>
                 </tr>
               ) : (
                 campaigns.map((c) => {
-                  const raised = c.raisedAmount ?? 0; // ✅ fallback if null
+                  const raised = c.raisedAmount ?? 0;
                   const percent = Math.min((raised / c.goalAmount) * 100, 100);
 
                   return (

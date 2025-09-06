@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Form, Button, Card, Alert, InputGroup, Row, Col } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import api from '../../api.js';
-import { Navigate } from "react-router-dom";
 
 export default function Register({ onSwitch, onRegister }) {
   const [form, setForm] = useState({

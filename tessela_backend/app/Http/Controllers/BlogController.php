@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -13,74 +12,112 @@ class BlogController extends Controller
     // List all blogs
     public function index()
     {
-        $blogs = Blog::with('images')->get();
+        // include likes count
+        $blogs = Blog::with('images')
+            ->withCount('likes')
+            ->get();
 
-        // Only send image paths
+        // normalize images to include full URL
         $blogs->transform(function ($blog) {
-            $blog->images = $blog->images->pluck('path'); 
+            $blog->images = $blog->images->map(function ($img) {
+                $img->url = asset('storage/' . $img->path);
+                return $img;
+            });
+            // expose likes_count as integer (already present from withCount)
             return $blog;
         });
 
         return response()->json($blogs);
     }
 
-    // Show single blog
+    // One blog
     public function show($blog_id)
     {
-        $blog = Blog::with('images')->findOrFail($blog_id);
-        $blog->images = $blog->images->pluck('path'); // Only paths
-        return response()->json($blog);
+        $blog = Blog::with('images')
+            ->withCount('likes') // adds $blog->likes_count
+            ->findOrFail($blog_id);
+
+        // normalize images to objects with url (NOT array of strings)
+        $blog->images = $blog->images->map(function ($img) {
+            $img->url = asset('storage/' . $img->path);
+            return $img;
+        })->values(); // keep it as a collection of model objects
+
+        // liked flag if request has an authenticated user (token on GET is fine)
+        $liked = false;
+        if ($user = request()->user()) {
+            $liked = $blog->likes()
+                ->where('user_id', $user->account_id) // change if using users.id
+                ->exists();
+        }
+
+        return response()->json([
+            'blog_id'     => $blog->blog_id,
+            'title'       => $blog->title,
+            'author'      => $blog->author,
+            'content'     => $blog->content,
+            'date'        => $blog->date,
+            'images'      => $blog->images,   // array of objects w/ url
+            'likes_count' => (int) $blog->likes_count,
+            'liked'       => $liked,
+        ]);
     }
 
     // Store new blog
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'content' => 'required|string',
-            'date' => 'required|string',
-            'images.*' => 'nullable|image|max:2048', // max 2MB per image
+            'title'     => 'required|string|max:255',
+            'author'    => 'required|string|max:255',
+            'content'   => 'required|string',
+            'date'      => 'required|string',
+            'images.*'  => 'nullable|image|max:2048',
         ]);
 
-        // Convert date to YYYY-MM-DD
         try {
             $date = Carbon::createFromFormat('m/d/Y', $request->date)->format('Y-m-d');
         } catch (\Exception $e) {
             return response()->json(['error' => 'Invalid date format'], 422);
         }
 
-        // Create blog
         $blog = Blog::create([
-            'title' => $request->title,
-            'author' => $request->author,
+            'title'   => $request->title,
+            'author'  => $request->author,
             'content' => $request->content,
-            'date' => $date,
+            'date'    => $date,
         ]);
 
-        // Handle images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $idx => $image) {
-                $path = $image->store('blogs', 'public'); // stores in storage/app/public/blogs
+                $path = $image->store('blogs', 'public');
                 BlogImage::create([
                     'blog_id' => $blog->blog_id,
-                    'path' => $path,
-                    'order' => $idx + 1,
+                    'path'    => $path,
+                    'order'   => $idx + 1,
                 ]);
             }
         }
 
-        return response()->json(['message' => 'Blog created successfully', 'blog' => $blog], 201);
+        $blog->load('images');
+        $blog->images = $blog->images->map(function ($img) {
+            $img->url = asset('storage/' . $img->path);
+            return $img;
+        });
+
+        return response()->json([
+            'message' => 'Blog created successfully',
+            'blog'    => $blog
+        ], 201);
     }
 
     // Delete blog
     public function destroy($blog_id)
     {
-        $blog = Blog::findOrFail($blog_id);
-        
-        // Delete associated images files from storage
+        $blog = Blog::with('images')->findOrFail($blog_id);
+
         foreach ($blog->images as $img) {
             Storage::disk('public')->delete($img->path);
+            $img->delete();
         }
 
         $blog->delete();
