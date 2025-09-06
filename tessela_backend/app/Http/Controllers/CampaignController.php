@@ -78,4 +78,53 @@ class CampaignController extends Controller
             201
         );
     }
+
+    // PUT /api/campaigns/{campaign}
+    public function update(Request $request, Campaign $campaign)
+    {
+        $data = $request->validate([
+            'name'        => ['sometimes','string','max:255'],
+            'goalAmount'  => ['sometimes','numeric','min:1'],
+            'description' => ['sometimes','string'],
+            'start_date'  => ['sometimes','date'],
+            'end_date'    => ['sometimes','date','after_or_equal:start_date'],
+            'status'      => ['sometimes', Rule::in(['active','draft','closed'])],
+        ]);
+
+        if (array_key_exists('status', $data)) {
+            // optional bookkeeping
+            $campaign->closed_at = $data['status'] === 'closed' ? now() : null;
+        }
+
+        $campaign->fill($data)->save();
+
+        // Return fresh with relations/raised sum if your UI needs it
+        $campaign->load(['images' => fn($i) => $i->orderBy('order')])
+                 ->loadSum(['donations as raised' => function ($q) {
+                     $q->where('payment_status', 'paid');
+                 }], 'amount');
+
+        return response()->json($campaign, 200);
+    }
+
+    // (optional) If you kept PATCH /campaigns/{campaign}/status in routes
+    public function updateStatus(Request $request, Campaign $campaign)
+    {
+        $data = $request->validate([
+            'status' => ['required', Rule::in(['active','draft','closed'])],
+        ]);
+
+        $campaign->status = $data['status'];
+        $campaign->closed_at = $data['status'] === 'closed' ? now() : null;
+        $campaign->save();
+
+        return response()->json($campaign->fresh(), 200);
+    }
+
+    // (optional) DELETE /api/campaigns/{campaign}
+    public function destroy(Campaign $campaign)
+    {
+        $campaign->delete();
+        return response()->json(['message' => 'Deleted'], 200);
+    }
 }

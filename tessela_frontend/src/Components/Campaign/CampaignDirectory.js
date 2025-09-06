@@ -1,5 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Card from "react-bootstrap/Card";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
+import Alert from "react-bootstrap/Alert";
+import Badge from "react-bootstrap/Badge";
+import ProgressBar from "react-bootstrap/ProgressBar";
+import InputGroup from "react-bootstrap/InputGroup";
+import Pagination from "react-bootstrap/Pagination";
 import api from "../../api";
+import { ArrowCounterclockwise } from "react-bootstrap-icons";
 
 export default function CampaignDirectory({ onOpen }) {
   const [items, setItems] = useState([]);
@@ -11,44 +24,47 @@ export default function CampaignDirectory({ onOpen }) {
 
   const pageSize = 8;
 
-  const load = async (signal) => {
-    try {
-      setLoading(true);
-      setErr(null);
-      const res = await api.get("/campaigns", {
-        params: { q: q || undefined, status: status !== "all" ? status : undefined },
-        signal, // ✅ axios v1 cancellation
-      });
-      const data = res?.data;
-      setItems(Array.isArray(data) ? data : data?.data || []);
-      setPage(1);
-    } catch (e) {
-      // axios v1 cancel markers
-      if (e?.name === "CanceledError" || e?.code === "ERR_CANCELED") return;
-      const msg =
-        e?.response?.data?.message ||
-        e?.response?.data?.error ||
-        e?.message ||
-        "Failed to load campaigns";
-      setErr(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+   // ✅ Memoize the loader so effects can safely depend on it
+  const load = useCallback(
+    async (signal) => {
+      try {
+        setLoading(true);
+        setErr(null);
+        const res = await api.get("/campaigns", {
+          params: { q: q || undefined, status: status !== "all" ? status : undefined },
+          signal, // axios v1 cancellation
+        });
+        const data = res?.data;
+        setItems(Array.isArray(data) ? data : data?.data || []);
+        setPage(1);
+      } catch (e) {
+        if (e?.name === "CanceledError" || e?.code === "ERR_CANCELED") return;
+        const msg =
+          e?.response?.data?.message ||
+          e?.response?.data?.error ||
+          e?.message ||
+          "Failed to load campaigns";
+        setErr(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [q, status] // 👈 re-create loader only when these change
+  );
 
-  // initial load
+  // initial load (no debounce)
   useEffect(() => {
     const ctrl = new AbortController();
     load(ctrl.signal);
     return () => ctrl.abort();
-  }, []);
+  }, [load]);
 
-  // debounce q/status changes
+  // debounced reload on q/status change (because `load` changes when q/status change)
   useEffect(() => {
     const ctrl = new AbortController();
     const t = setTimeout(() => load(ctrl.signal), 300);
     return () => { clearTimeout(t); ctrl.abort(); };
-  }, [q, status]);
+  }, [load]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -68,103 +84,186 @@ export default function CampaignDirectory({ onOpen }) {
     return filtered.slice(start, start + pageSize);
   }, [filtered, page]);
 
-  if (loading) return <div>Loading…</div>;
-  if (err) return <div style={{ color: "red" }}>{err}</div>;
-
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: 20 }}>
-      <h1>Donation Campaigns</h1>
+    <Container className="py-4">
+      <Row className="align-items-center mb-3">
+        <Col>
+          <h1 className="h3 m-0">Donation Campaigns</h1>
+        </Col>
+        <Col xs="auto">
+            <Button
+                variant="outline-primary"
+                onClick={() => load()}
+                disabled={loading}
+                >
+                {loading ? (
+                    <Spinner animation="border" size="sm" />
+                ) : (
+                    <ArrowCounterclockwise />
+                )}
+            </Button>
+        </Col>
+      </Row>
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
-        <input
-          placeholder="Search campaigns…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          style={{ flex: 1, padding: 8 }}
-        />
-        <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ padding: 8 }}>
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="draft">Draft</option>
-          <option value="closed">Closed</option>
-        </select>
-        <button onClick={() => load()}>Refresh</button>
-      </div>
+      <Row className="g-2 mb-3">
+        <Col md={8}>
+          <InputGroup>
+            <InputGroup.Text id="search-label">Search</InputGroup.Text>
+            <Form.Control
+              aria-labelledby="search-label"
+              placeholder="Search campaigns…"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </InputGroup>
+        </Col>
+        <Col md={4}>
+          <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="all">All statuses</option>
+            <option value="active">Active</option>
+            <option value="closed">Closed</option>
+          </Form.Select>
+        </Col>
+      </Row>
 
-      {filtered.length === 0 ? (
-        <p>No campaigns found.</p>
-      ) : (
+      {loading && (
+        <div className="d-flex align-items-center gap-2 text-muted">
+          <Spinner animation="border" size="sm" />
+          <span>Loading…</span>
+        </div>
+      )}
+
+      {!!err && (
+        <Alert variant="danger">
+          <strong>Oops!</strong> {err}
+        </Alert>
+      )}
+
+      {!loading && !err && (
         <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
-            {slice.map((c) => (
-              <div key={c.campaign_id} style={{ border: "1px solid #ddd", borderRadius: 10, padding: 12 }}>
-                <Thumb imagePath={c.images?.[0]?.image_path} alt={c.name} />
-                <h3 style={{ margin: "10px 0 6px" }}>{c.name}</h3>
-                <p style={{ margin: "0 0 6px", color: "#555" }}>
-                  {fmtDate(c.start_date)} – {fmtDate(c.end_date)} · {c.status}
-                </p>
-                <ProgressWithText raised={c.raised} goal={c.goalAmount} />
-                <p style={{ marginTop: 8 }}>{trim(c.description, 120)}</p>
-                <button onClick={() => (window.location.href = `/donate/${c.campaign_id}`)}>
-                    View / Donate
-                    </button>
+          {filtered.length === 0 ? (
+            <Alert variant="secondary" className="text-center">
+              No campaigns found.
+            </Alert>
+          ) : (
+            <>
+              <Row xs={1} sm={2} md={3} lg={4} className="g-3">
+                {slice.map((c) => (
+                  <Col key={c.campaign_id}>
+                    <Card className="h-100 shadow-sm">
+                      <Thumb imagePath={c.images?.[0]?.image_path} alt={c.name} />
+                      <Card.Body className="d-flex flex-column">
+                        <Card.Title className="mb-1">{c.name}</Card.Title>
+                        <div className="text-muted small mb-2">
+                          {fmtDate(c.start_date)} – {fmtDate(c.end_date)} ·{" "}
+                          <StatusBadge status={c.status} />
+                        </div>
 
+                        <ProgressWithText raised={c.raised} goal={c.goalAmount} />
+
+                        <Card.Text className="mt-2 mb-3">{trim(c.description, 120)}</Card.Text>
+
+                        <div className="mt-auto d-grid">
+                          <Button
+                            variant="success"
+                            onClick={() => (window.location.href = `/donate/${c.campaign_id}`)}
+                          >
+                            View / Donate
+                          </Button>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+
+              <div className="d-flex flex-end justify-content-center mt-4">
+                <Pagination>
+                  <Pagination.Prev onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} />
+                  <Pagination.Item active>{page}</Pagination.Item>
+                  <Pagination.Next
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                  />
+                </Pagination>
               </div>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center", marginTop: 16 }}>
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
-              Prev
-            </button>
-            <span>Page {page} / {totalPages}</span>
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
-              Next
-            </button>
-          </div>
+              <div className="text-center text-muted small">Page {page} of {totalPages}</div>
+            </>
+          )}
         </>
       )}
-    </div>
+    </Container>
   );
 }
 
-/* --- helpers --- */
-function Thumb({ imagePath, alt }) {
-  if (!imagePath) return null;
+/* --- helpers / subcomponents --- */
 
+function Thumb({ imagePath, alt }) {
+  if (!imagePath) {
+    return (
+      <div
+        className="bg-light d-flex align-items-center justify-content-center"
+        style={{ height: 160 }}
+      >
+        <span className="text-muted small">No image</span>
+      </div>
+    );
+  }
   // derive http://127.0.0.1:8000 from your api baseURL "http://127.0.0.1:8000/api"
   const API_ORIGIN = (api.defaults.baseURL || "").replace(/\/api\/?$/, "");
   const src = `${API_ORIGIN}/storage/${imagePath}`;
 
   return (
-    <img
+    <Card.Img
+      variant="top"
       src={src}
       alt={alt}
-      style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 8 }}
+      style={{ height: 160, objectFit: "cover" }}
       loading="lazy"
-      onError={(e) => { e.currentTarget.style.display = "none"; }}
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
     />
   );
 }
 
+function StatusBadge({ status }) {
+  const map = {
+    active: "success",
+    closed: "dark",
+  };
+  return <Badge bg={map[status] ?? "secondary"} className="text-uppercase">{status}</Badge>;
+}
 
 function ProgressWithText({ raised, goal }) {
   const percent = pct(raised ?? 0, goal ?? 0);
   return (
     <>
-      <ProgressBar percent={percent} />
-      <small>₱{fmtMoney(raised || 0)} / ₱{fmtMoney(goal || 0)}</small>
+      <ProgressBar now={percent} animated={percent > 0 && percent < 100} className="mb-1" />
+      <div className="d-flex justify-content-between small">
+        <span>₱{fmtMoney(raised || 0)}</span>
+        <span className="text-muted">{percent}%</span>
+        <span>₱{fmtMoney(goal || 0)}</span>
+      </div>
     </>
   );
 }
 
+/* --- utils --- */
 function fmtMoney(n) {
-  return Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return Number(n || 0).toLocaleString("en-PH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 function fmtDate(d) {
   if (!d) return "";
   const date = new Date(d);
-  return date.toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" });
+  return date.toLocaleDateString("en-PH", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 function pct(raised, goal) {
   if (!goal || goal <= 0) return 0;
@@ -173,11 +272,4 @@ function pct(raised, goal) {
 function trim(txt = "", n = 120) {
   const s = String(txt);
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
-}
-function ProgressBar({ percent }) {
-  return (
-    <div style={{ background: "#eee", borderRadius: 8, overflow: "hidden", margin: "6px 0" }}>
-      <div style={{ width: percent + "%", background: "green", height: 10 }} />
-    </div>
-  );
 }

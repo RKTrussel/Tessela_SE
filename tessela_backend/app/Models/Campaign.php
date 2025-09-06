@@ -9,32 +9,32 @@ use App\Models\Donation;
 
 class Campaign extends Model
 {
-    use HasFactory;
+    protected $primaryKey = 'campaign_id'; // your key column
+    public $incrementing = true;           // set false if UUID
+    protected $keyType = 'int';            // 'string' if UUID
 
-    // ✅ Tell Eloquent the primary key column
-    protected $primaryKey = 'campaign_id';
-
-    // ✅ It’s an auto-incrementing integer
-    public $incrementing = true;
-    protected $keyType = 'int';
-
-    // ✅ Allow mass-assignment for these fields
     protected $fillable = [
         'name',
-        'goalAmount',
         'description',
+        'status',
         'start_date',
         'end_date',
-        'status',
+        'goalAmount',
+        'closed_at', // ✅ make sure this is fillable
     ];
 
-    // ✅ Make route model binding use campaign_id instead of "id"
+    protected $casts = [
+        'closed_at' => 'datetime', // ✅ auto-cast to Carbon
+        'start_date' => 'date',
+        'end_date'   => 'date',
+    ];
+
+    // Use campaign_id for implicit route model binding
     public function getRouteKeyName()
     {
         return 'campaign_id';
     }
 
-    // Relationships
     public function images()
     {
         return $this->hasMany(CampaignImage::class, 'campaign_id', 'campaign_id');
