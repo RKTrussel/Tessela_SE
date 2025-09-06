@@ -1,6 +1,10 @@
 import SideNavbar from "../../Sellers_Page/Sellers_Info/sideNavbar";
 import MyCampaign from "../MyCampaign";
 import AddCampaign from "../AddCampaign";
+import CampaignDonate from "../CampaignDonate";
+import CampaignDirectory from "../CampaignDirectory";
+import Navbar from "../../Shopping_Page/Navbar/Navbar";
+import SecondNavbar from "../../Shopping_Page/Navbar/SecondNavbar";
 import { TopCustomNav } from "../../Sellers_Page/Product_add/topCustomNav";
 
 const containerStyle = {
@@ -40,6 +44,28 @@ export function AddCampaignContainer() {
                 <SideNavbar />
                 <AddCampaign />
             </div>
+        </>
+    );
+}
+
+export function CampaignDonateContainer({ campaignId }) {
+    return (
+        <>
+            <Navbar />
+            <SecondNavbar />
+            <CampaignDonate campaignId={campaignId }/>
+
+        </>
+    );
+}
+
+export function CampaignDirectoryContainer() {
+    return (
+        <>
+            <Navbar />
+            <SecondNavbar />
+            <CampaignDirectory />
+
         </>
     );
 }

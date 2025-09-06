@@ -13,6 +13,7 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\DonationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +28,7 @@ use App\Http\Controllers\LikeController;
 
 // Public routes
 Route::get('/campaigns', [CampaignController::class, 'index']);
-Route::get('/campaigns/{campaign}', [CampaignController::class, 'show']);
+Route::get('/campaigns/{campaign:campaign_id}', [CampaignController::class, 'show']);
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{blog}', [BlogController::class, 'show']);
 
@@ -46,6 +47,8 @@ Route::get('/products/{id}', [UserController::class, 'viewItemDetails']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/campaigns/{campaign:campaign_id}/donations', [DonationController::class, 'index']);
+Route::post('/campaigns/{campaign:campaign_id}/donations', [DonationController::class, 'store']);
 
 Route::middleware('token.auth')->group(function () {
     Route::post('/cart/add', [UserController::class, 'addToCart']);
@@ -86,3 +89,13 @@ Route::middleware('token.auth')->group(function () {
 
 // solo middleware
 Route::middleware('token.auth')->get('/me', [AuthController::class, 'me']);
+
+Route::post('/donations/{donation}/simulate', function(\App\Models\Donation $donation, Request $r){
+  abort_unless(app()->environment(['local','testing']), 403);
+  $status = $r->validate(['status'=>'required|in:paid,failed,refunded'])['status'];
+  $donation->update([
+    'payment_status'=>$status,
+    'payment_ref' => $donation->payment_ref ?? 'SIM-'.strtoupper(str()->random(10)),
+  ]);
+  return $donation;
+});

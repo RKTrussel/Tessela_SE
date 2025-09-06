@@ -43,7 +43,12 @@ class Account extends Model
         });
     }
 
-     public function newFromBuilder($attributes = [], $connection = null)
+    public function donations()
+    {
+        return $this->hasMany(Donation::class, 'user_id', 'account_id');
+    }
+
+    public function newFromBuilder($attributes = [], $connection = null)
     {
         $attributes = (array) $attributes;
 

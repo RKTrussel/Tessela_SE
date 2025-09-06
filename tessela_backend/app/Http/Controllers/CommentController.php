@@ -7,38 +7,25 @@ use App\Models\Blog;
 
 class CommentController extends Controller
 {
-    // Build a display name from whatever fields your Account has
-    private function displayName($u): string
-    {
-        if (!$u) return 'Anonymous';
-        $full = $u->full_name ?? null;
-        $firstLast = trim(($u->first_name ?? '').' '.($u->last_name ?? ''));
-        return $full
-            ?: ($firstLast !== '' ? $firstLast : null)
-            ?: ($u->name ?? null)
-            ?: ($u->username ?? null)
-            ?: ($u->email ?? null)
-            ?: 'Anonymous';
-    }
-
     // Get all comments for a blog
     public function index($blog_id)
     {
         $blog = Blog::findOrFail($blog_id);
 
         $comments = $blog->comments()
-            ->with('user')           // eager load user
+            ->with('user') // eager load user
             ->latest()
             ->get()
             ->map(function ($c) {
-                $author = $this->displayName($c->user);
                 return [
                     'comment_id' => $c->comment_id,
                     'content'    => $c->content,
-                    'author'     => $author,
+                    'author'     => $c->user ? $c->user->name : null, // Get name from accounts table
                     'created_at' => $c->created_at,
                 ];
             });
+
+        
 
         return response()->json($comments);
     }
@@ -46,39 +33,47 @@ class CommentController extends Controller
     // Store a new comment (must be logged in)
     public function store(Request $request, $blog_id)
     {
+        // Validate request
         $request->validate([
             'content' => 'required|string|max:2000',
         ]);
 
+        // Ensure user is authenticated
         $user = $request->user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $blog = Blog::findOrFail($blog_id);
+        // Ensure blog exists
+        $blog = Blog::find($blog_id);
+        if (!$blog) {
+            return response()->json(['message' => 'Blog not found'], 404);
+        }
 
+        // Create comment
         $comment = Comment::create([
             'blog_id' => $blog->blog_id,
-            'user_id' => $user->account_id,   // adjust if your PK differs
+            'user_id' => $user->account_id, // Match your DB column name
             'content' => $request->content,
         ]);
 
+        // Respond with structured data for frontend
         return response()->json([
             'comment_id' => $comment->comment_id,
+            'author'     => $user->name,
             'content'    => $comment->content,
-            'author'     => $this->displayName($user),
-            'created_at' => $comment->created_at,
+            'created_at' => $comment->created_at->toDateTimeString(),
         ], 201);
     }
 
-    // Delete a comment (optionally restrict to owner/admin)
+    // Delete a comment
     public function destroy(Request $request, $comment_id)
     {
         $comment = Comment::findOrFail($comment_id);
 
-        // Uncomment to restrict deletion to owner (or add admin check)
+        // Optional: restrict deletion to owner or admin
         // $user = $request->user();
-        // if (!$user || $comment->user_id !== $user->account_id) {
+        // if (!$user || $comment->userId !== $user->account_id) {
         //     return response()->json(['message' => 'Forbidden'], 403);
         // }
 

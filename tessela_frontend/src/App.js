@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import HomePage from './Components/Shopping_Page/Home_Page/homePage';
@@ -13,7 +13,7 @@ import HomeBlogPage from './Components/Blog_Page/HomeBlogPage';
 
 import { DashboardContainer, MyOrderContainer , MyProductContainer } from './Components/Sellers_Page/Containers/dashboardContainer';
 import ProductAddContainer from './Components/Sellers_Page/Containers/productAddContainer';
-import { MyCampaignContainer, AddCampaignContainer } from './Components/Campaign/Container/CampaignContainer';
+import { MyCampaignContainer, AddCampaignContainer , CampaignDonateContainer , CampaignDirectoryContainer } from './Components/Campaign/Container/CampaignContainer';
 import { MyBlogContainer , AddBlogContainer } from './Components/Blog_Page/Container/BlogContainer';
 
 import AuthContainer from './Components/Auth/Container/AuthContainer';
@@ -23,24 +23,33 @@ import RequireAuth from './Components/Auth/Guards/RequireAuth';
 import RequireRole from './Components/Auth/Guards/RequireRole';
 import GuestOnly from './Components/Auth/Guards/GuestOnly';
 
-
+function CampaignDonateRoute() {
+  const { id } = useParams();
+  console.log("donate route id:", id); // <-- should log a number, not 'undefined'
+  return <CampaignDonateContainer campaignId={id} />;
+}
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Public */}
           <Route path="/" element={<HomePage />} />
           <Route path="/blog" element={<HomeBlogPage />} />
-          
-          {/* Guests should NOT reach /auth if already logged in */}
+
+          {/* Public donation routes */}
+         <Route path="/donate" element={<CampaignDirectoryContainer />} />
+         <Route path="/donate/:id" element={<CampaignDonateRoute />} />
+
+          {/* Guests-only auth */}
           <Route element={<GuestOnly />}>
             <Route path="/auth" element={<AuthContainer />} />
           </Route>
 
-          {/* Everything below requires a logged-in user (blocks non-user from shop) */}
+          {/* Protected (logged-in) */}
           <Route element={<RequireAuth />}>
-            {/* Shopping Page (protected) */}
+            {/* User area */}
             <Route element={<RequireRole allow={['user']} />}>
               <Route path="/explore/:weavingType" element={<Explore />} />
               <Route path="/product/:id" element={<ItemContainer />} />
@@ -49,8 +58,8 @@ function App() {
               <Route path="/marketplace" element={<MarketPlaceContainer />} />
               <Route path="/account" element={<AddressContainer />} />
             </Route>
-            
-            {/* Admin-only area (blocks user & guest from admin) */}
+
+            {/* Admin area */}
             <Route element={<RequireRole allow={['admin']} />}>
               <Route path="/dashboard" element={<DashboardContainer />} />
               <Route path="/dashboard/myProduct" element={<MyProductContainer />} />

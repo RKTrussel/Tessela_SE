@@ -73,7 +73,7 @@ export default function BlogDetail({ post, onBack }) {
     const tempId = `temp-${Date.now()}`;
     const optimistic = {
       comment_id: tempId,
-      author: "You",
+      author: "You", // optimistic placeholder
       content: cmtContent,
       created_at: new Date().toISOString(),
       _optimistic: true,
@@ -81,9 +81,7 @@ export default function BlogDetail({ post, onBack }) {
     setComments(prev => [optimistic, ...prev]);
 
     try {
-      // ✅ send `content`
       const { data } = await api.post(`/blogs/${blogId}/comments`, { content: cmtContent });
-      // server returns comment with `comment_id` + `content`
       setComments(prev => [data, ...prev.filter(c => c.comment_id !== tempId)]);
       setCmtContent("");
     } catch {
@@ -176,7 +174,7 @@ export default function BlogDetail({ post, onBack }) {
               {comments.map((c) => (
                 <ListGroup.Item key={c.comment_id ?? c.id} className="px-0">
                   <div className="d-flex justify-content-between">
-                    <strong>{c.user?.name || c.author}</strong>
+                    <strong>{c.author}</strong>
                     <small className="text-muted">
                       {new Date(c.created_at).toLocaleString()}
                       {c._optimistic && " • sending…"}

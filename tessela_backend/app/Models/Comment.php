@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Blog;
 use App\Models\Account;
+use App\Models\User;
 
 class Comment extends Model
 {
@@ -17,6 +18,8 @@ class Comment extends Model
 
     public function user()
     {
-        return $this->belongsTo(Account::class, 'user_id', 'account_id'); 
+        return $this->belongsTo(User::class, 'user_id', 'account_id'); 
+        // Or use 'userId' if that's your actual column
     }
+
 }

@@ -47,7 +47,7 @@ const MyBlog = () => {
           <h4>My Blogs</h4>
         </Col>
         <Col className="text-end">
-          <Button onClick={() => navigate("/dashboard/myBlog/create")}>
+          <Button onClick={() => navigate("/dashboard/myBlog/addBlogs")}>
             + Add Blog
           </Button>
         </Col>
