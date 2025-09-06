@@ -99,16 +99,13 @@ class Account extends Model
     {
         try 
         {
-            $class = $role === 'admin' ? Admin::class : User::class;
-
-            $class::create([
+            User::create([
                 'name' => $name,
                 'email' => $email,
                 'password' => Hash::make($password),
                 'birthday' => $birthday,
                 'gender'   => $gender,
                 'role' => $role,
-
             ]);
 
             return true;

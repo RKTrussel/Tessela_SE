@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Form, Button, Card, Alert, InputGroup, Row, Col } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import api from '../../api.js';
+import { Navigate } from "react-router-dom";
 
 export default function Register({ onSwitch, onRegister }) {
   const [form, setForm] = useState({
@@ -12,6 +13,7 @@ export default function Register({ onSwitch, onRegister }) {
     gender: "",
   });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const onChange = (e) => {
@@ -46,18 +48,35 @@ export default function Register({ onSwitch, onRegister }) {
     try {
       const response = await api.post("/register", submitForm);
       if (response.status === 201) {
+        setSuccess(true);
         onRegister?.(form);
+          // redirect to login tab after success
+        setTimeout(() => {
+          onSwitch(); // parent switches to login
+        }, 1500);
       }
     } catch (error) {
-      console.log(error);
-      setError("Registration failed. Please try again.");
+      if (error.response) {
+      if (error.response.status === 422) {
+        // Laravel validation errors
+        console.log("Validation errors:", error.response.data.errors);
+        setError(error.response.data.message || "Validation error. Please check your input.");
+        return;
+      } else {
+        // Other errors (500, 401, etc.)
+        console.error("Server error:", error.response.data);
+      }
+    } else {
+      console.error("Network error:", error.message);
     }
+  }
   };
 
   return (
     <Card className="p-3">
       <h5 className="mb-3 text-center">Create an Account</h5>
       {error && <Alert variant="danger">{error}</Alert>}
+      {success && <Alert variant="success">Registration successful! You can now log in.</Alert>}
       <Form onSubmit={submit}>
         <Form.Group className="mb-3">
           <Form.Label>Email Address *</Form.Label>
