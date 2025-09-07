@@ -1,6 +1,6 @@
 .dimming-div {
     width: 100%;
-    height: 65px; /* Adjust height as needed */
+    height: 68px; /* Adjust height as needed */
     background: rgba(0, 0, 0, 0.5); /* Black with 40% opacity */
     position: relative; /* Or absolute/fixed if you want it to overlay */
     z-index: 2;
