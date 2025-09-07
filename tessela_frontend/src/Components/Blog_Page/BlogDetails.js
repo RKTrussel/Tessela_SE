@@ -156,7 +156,7 @@ export default function BlogDetail({ post, onBack }) {
 
           {/* Extra images carousel */}
           {post.images?.length > 1 && (
-            <Carousel className="mb-4 shadow-lg">
+            <Carousel className="mb-4 shadow-lg" variant="dark">
               {post.images.slice(1).map((img, index) => (
                 <Carousel.Item key={index}>
                   <Image
