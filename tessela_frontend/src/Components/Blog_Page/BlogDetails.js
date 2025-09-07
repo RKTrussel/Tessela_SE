@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button, Image, Carousel, Form, ListGroup, Spinner } from "react-bootstrap";
 import api from "../../api";
+import './BlogDetails.css';
 
 export default function BlogDetail({ post, onBack }) {
   const safePost = post ?? {};
@@ -19,7 +20,10 @@ export default function BlogDetail({ post, onBack }) {
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
-      if (!blogId) { setCmtLoading(false); return; }
+      if (!blogId) {
+        setCmtLoading(false);
+        return;
+      }
       try {
         setCmtLoading(true);
         const [cmtRes, blogRes] = await Promise.allSettled([
@@ -40,21 +44,23 @@ export default function BlogDetail({ post, onBack }) {
       }
     };
     load();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [blogId]);
 
   const handleLike = async () => {
     if (likeLoading || !blogId) return;
     setLikeLoading(true);
-    setLiked(prev => !prev);
-    setLikes(prev => prev + (liked ? -1 : 1));
+    setLiked((prev) => !prev);
+    setLikes((prev) => prev + (liked ? -1 : 1));
     try {
       const { data } = await api.post(`/blogs/${blogId}/like`);
       if (typeof data.likes_count === "number") setLikes(data.likes_count);
       if (typeof data.liked === "boolean") setLiked(data.liked);
     } catch {
-      setLiked(prev => !prev);
-      setLikes(prev => prev + (liked ? 1 : -1));
+      setLiked((prev) => !prev);
+      setLikes((prev) => prev + (liked ? 1 : -1));
     } finally {
       setLikeLoading(false);
     }
@@ -73,20 +79,25 @@ export default function BlogDetail({ post, onBack }) {
     const tempId = `temp-${Date.now()}`;
     const optimistic = {
       comment_id: tempId,
-      author: "You", // optimistic placeholder
+      author: "You",
       content: cmtContent,
       created_at: new Date().toISOString(),
       _optimistic: true,
     };
-    setComments(prev => [optimistic, ...prev]);
+    setComments((prev) => [optimistic, ...prev]);
 
     try {
-      const { data } = await api.post(`/blogs/${blogId}/comments`, { content: cmtContent });
-      setComments(prev => [data, ...prev.filter(c => c.comment_id !== tempId)]);
+      const { data } = await api.post(`/blogs/${blogId}/comments`, {
+        content: cmtContent,
+      });
+      setComments((prev) => [
+        data,
+        ...prev.filter((c) => c.comment_id !== tempId),
+      ]);
       setCmtContent("");
     } catch {
       setCmtError("Failed to post comment. Please try again.");
-      setComments(prev => prev.filter(c => c.comment_id !== tempId));
+      setComments((prev) => prev.filter((c) => c.comment_id !== tempId));
     } finally {
       setCmtSubmitting(false);
     }
@@ -98,39 +109,52 @@ export default function BlogDetail({ post, onBack }) {
     <Container className="mt-4">
       <Row className="justify-content-center">
         <Col md={10} lg={8}>
+          <h1 className="display-4 fw-bold text-center" style={{fontFamily: "Merriweather"}}>{post.title}</h1>
+          {/* Hero image */}
           {post.images?.length > 0 && (
             <Image
               src={post.images[0]?.url}
               alt={post.title}
-              fluid
-              rounded
-              className="mb-4 shadow-lg"
+              className="blog-hero-img mb-4"
             />
           )}
 
-          <h1 className="fw-bold text-start">{post.title}</h1>
-          <p className="text-muted text-start">
+          {/* Title + Meta */}
+          
+          <p className="blog-meta">
             By <strong>{post.author}</strong> • {post.date}
           </p>
 
-          <div className="d-flex gap-2 align-items-center mb-3">
-            <Button variant={liked ? "danger" : "outline-danger"} onClick={handleLike} disabled={likeLoading}>
-              {likeLoading ? <Spinner size="sm" animation="border" /> : liked ? "♥ Liked" : "♡ Like"}
+          {/* Like + Back */}
+          <div className="d-flex gap-3 align-items-center mb-4 justify-content-center">
+            <Button
+              variant={liked ? "danger" : "outline-danger"}
+              onClick={handleLike}
+              disabled={likeLoading}
+            >
+              {likeLoading ? (
+                <Spinner size="sm" animation="border" />
+              ) : liked ? (
+                "♥ Liked"
+              ) : (
+                "♡ Like"
+              )}
             </Button>
-            <span className="text-muted">{likes} {likes === 1 ? "like" : "likes"}</span>
-            <div className="ms-auto">
-              <Button variant="secondary" onClick={onBack}>← Back to Home</Button>
-            </div>
+            <span className="text-muted">
+              {likes} {likes === 1 ? "like" : "likes"}
+            </span>
+            <Button variant="secondary" onClick={onBack}>
+              ← Back to Home
+            </Button>
           </div>
 
-          <div className="text-center mb-4">
-            <div
-              className="fs-5"
-              style={{ lineHeight: "1.8", whiteSpace: "pre-line" }}
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
-          </div>
+          {/* Article Content */}
+          <div
+            className="blog-content"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
 
+          {/* Extra images carousel */}
           {post.images?.length > 1 && (
             <Carousel className="mb-4 shadow-lg">
               {post.images.slice(1).map((img, index) => (
@@ -138,16 +162,16 @@ export default function BlogDetail({ post, onBack }) {
                   <Image
                     src={img?.url}
                     alt={`gallery-${index}`}
-                    fluid
                     rounded
-                    className="d-block mx-auto"
+                    className="d-block mx-auto carousel-img"
                   />
                 </Carousel.Item>
               ))}
             </Carousel>
           )}
 
-          <h4 className="mt-4">Comments</h4>
+          {/* Comments Section */}
+          <h4 className="mt-5 mb-3">Comments</h4>
           <Form onSubmit={submitComment} className="mb-3">
             <Form.Group className="mb-2">
               <Form.Control
@@ -161,18 +185,27 @@ export default function BlogDetail({ post, onBack }) {
             </Form.Group>
             {cmtError && <div className="text-danger mb-2">{cmtError}</div>}
             <Button type="submit" disabled={cmtSubmitting}>
-              {cmtSubmitting ? <Spinner size="sm" animation="border" /> : "Post Comment"}
+              {cmtSubmitting ? (
+                <Spinner size="sm" animation="border" />
+              ) : (
+                "Post Comment"
+              )}
             </Button>
           </Form>
 
           {cmtLoading ? (
-            <div className="text-center py-3"><Spinner animation="border" /></div>
+            <div className="text-center py-3">
+              <Spinner animation="border" />
+            </div>
           ) : comments.length === 0 ? (
             <p className="text-muted">No comments yet. Be the first!</p>
           ) : (
             <ListGroup variant="flush" className="mb-5">
               {comments.map((c) => (
-                <ListGroup.Item key={c.comment_id ?? c.id} className="px-0">
+                <ListGroup.Item
+                  key={c.comment_id ?? c.id}
+                  className="px-0 border-0 border-bottom"
+                >
                   <div className="d-flex justify-content-between">
                     <strong>{c.author}</strong>
                     <small className="text-muted">

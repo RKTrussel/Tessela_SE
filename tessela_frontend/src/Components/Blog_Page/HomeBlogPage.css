@@ -1,0 +1,52 @@
+.journal-title {
+  font-weight: 600;
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.blog-card {
+  border: none;
+  background: transparent;
+}
+
+.blog-img-wrapper {
+  width: 100%;
+  height: 220px; /* Fixed height for consistency */
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.blog-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.blog-img:hover {
+  transform: scale(1.05);
+}
+
+.blog-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.blog-excerpt {
+  font-size: 14px;
+  color: #555;
+}
+
+.read-more {
+  padding: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #000;
+  text-decoration: none;
+}
+
+.read-more:hover {
+  text-decoration: underline;
+}
