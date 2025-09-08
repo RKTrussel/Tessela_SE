@@ -1,0 +1,117 @@
+[
+  {
+    "name": "Inabel Handwoven Blanket",
+    "weaving_type": "Inabel",
+    "description": "A traditional Ilocano handwoven textile made from cotton using wooden looms. Known for its durability and beautiful geometric patterns.",
+    "price": 2500,
+    "stock": 12,
+    "condition": "New",
+    "barcode": "482193746512",
+    "images": [
+        "seed-product-images/firstProduct_4.jpg",
+        "seed-product-images/firstProduct_1.jpg",
+        "seed-product-images/firstProduct_2.jpg",
+        "seed-product-images/firstProduct_3.jpg"
+    ]
+  },
+  {
+    "name": "Ikat Woven Shawl",
+    "weaving_type": "Ikat",
+    "description": "A unique textile created through a resist dyeing process before weaving. Each piece carries intricate patterns symbolizing cultural identity.",
+    "price": 3200,
+    "stock": 8,
+    "condition": "New",
+    "barcode": "593817204689",
+    "images": [
+        "seed-product-images/secondProduct_2.jpg",
+        "seed-product-images/secondProduct_1.jpg"
+    ]
+  },
+  {
+    "name": "Kalinga Traditional Skirt",
+    "weaving_type": "Kalinga",
+    "description": "A handwoven skirt featuring bold red, black, and white stripes with symbolic tribal motifs representing the Kalinga heritage.",
+    "price": 2800,
+    "stock": 5,
+    "condition": "New",
+    "barcode": "671928305471",
+    "images": [
+        "seed-product-images/thirdProduct_2.jpg",
+        "seed-product-images/thirdProduct_1.jpg"
+    ]
+  },
+  {
+    "name": "Inabel Table Runner",
+    "weaving_type": "Inabel",
+    "description": "A finely woven table runner crafted by Ilocano weavers. Combines functionality with artistic patterns for home decoration.",
+    "price": 1500,
+    "stock": 20,
+    "condition": "New",
+    "barcode": "704912385640",
+    "images": [
+        "seed-product-images/fourthProduct_1.jpg"
+    ]
+  },
+  {
+    "name": "Ikat Decorative Pillowcase",
+    "weaving_type": "Ikat",
+    "description": "Handwoven pillowcase using Ikat dyeing techniques, showcasing abstract patterns and rich cultural artistry.",
+    "price": 1200,
+    "stock": 15,
+    "condition": "New",
+    "barcode": "819204736591",
+    "images": [
+        "seed-product-images/fifthProduct_1.jpg"
+    ]
+  },
+  {
+    "name": "Kalinga Beaded Sash",
+    "weaving_type": "Kalinga",
+    "description": "A traditional Kalinga sash interwoven with beads and vibrant patterns, worn during rituals and celebrations.",
+    "price": 2000,
+    "stock": 7,
+    "condition": "New",
+    "barcode": "935710284673",
+    "images": [
+        "seed-product-images/sixthProduct_1.jpg",
+        "seed-product-images/sixthProduct_2.jpg"
+    ]
+  },
+  {
+    "name": "Inabel Scarf",
+    "weaving_type": "Inabel",
+    "description": "Soft and lightweight cotton scarf woven on traditional wooden looms. Stylish and breathable for everyday wear.",
+    "price": 900,
+    "stock": 18,
+    "condition": "New",
+    "barcode": "129384756092",
+    "images": [
+        "seed-product-images/seventhProduct_1.jpg"
+    ]
+  },
+  {
+    "name": "Ikat Wall Hanging",
+    "weaving_type": "Ikat",
+    "description": "An ornamental wall hanging showcasing Ikat's complex dyeing and weaving traditions, perfect for home interiors.",
+    "price": 3500,
+    "stock": 6,
+    "condition": "New",
+    "barcode": "284619370582",
+    "images": [
+        "seed-product-images/eightProduct_1.jpg"
+    ]
+    
+  },
+  {
+    "name": "Kalinga Headcloth",
+    "weaving_type": "Kalinga",
+    "description": "A symbolic headcloth worn by men of the Kalinga tribe, woven with red and black threads representing bravery and identity.",
+    "price": 1700,
+    "stock": 9,
+    "condition": "New",
+    "barcode": "357810492761",
+    "images": [
+        "seed-product-images/ninthProduct_1.jpg"
+    ]
+  }
+]

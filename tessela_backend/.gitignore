@@ -3,6 +3,7 @@
 /public/hot
 /public/storage
 !/public/storage/seed-images
+!/public/storage/seed-product-images
 /storage/*.key
 /vendor
 .env
