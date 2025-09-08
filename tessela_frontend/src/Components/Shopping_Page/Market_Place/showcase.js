@@ -1,29 +1,29 @@
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import dressImg from "./cathethiya.jpg";
-// import boleroImg from "../assets/bolero.jpg";
-// import barongImg from "../assets/barong.jpg";
+import inabelCloth from "./Inabel.jpg";
+import ikatCloth from "./Ikat.jpg";
+import kalingaCloth from "./Kalinga.jpg";
 
 export default function Showcase() {
   const showcaseImages = [
     {
-      url: dressImg,
+      url: inabelCloth,
       alt: "Inabel",
     },
     {
-      url: dressImg,
+      url: ikatCloth,
       alt: "Ikat",
     },
     {
-      url: dressImg,
-      alt: "??",
+      url: kalingaCloth,
+      alt: "Kalinga",
     },
   ];
 
   return (
     <Container className="my-5">
-      <h3 className="text-center mb-4">#Tessela</h3>
+      <h3 className="text-center mb-4" style={{fontFamily: "Merriweather"}}>#Tessela</h3>
       <Row>
         {showcaseImages.map((img, index) => (
           <Col key={index} xs={12} md={4} className="mb-4">
