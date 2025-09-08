@@ -17,7 +17,7 @@ export default function Marketplace() {
 
     return (
         <div style={{ padding: "0 5rem" }}>
-            <h1 className="text-center mb-4">New Arrivals</h1>
+            <h1 className="text-center mb-4" style={{fontFamily: "Merriweather"}}>New Arrivals</h1>
             <Row>
                 {products.map((product) => (
                     <Col key={product.product_id} xs={12} sm={6} md={4} className="mb-4">
@@ -54,11 +54,12 @@ export default function Marketplace() {
                                             textDecoration:
                                             hovered === product.product_id ? "underline" : "none",
                                             transition: "text-decoration 0.2s ease",
+                                            fontFamily: "Merriweather"
                                         }}
                                     >
                                         {product.name}
                                     </Card.Title>
-                                    <Card.Text className="text-muted">
+                                    <Card.Text className="text-muted" style={{fontFamily: "Merriweather"}}>
                                         ₱{product.price.toLocaleString()}
                                     </Card.Text>
                                 </Card.Body>

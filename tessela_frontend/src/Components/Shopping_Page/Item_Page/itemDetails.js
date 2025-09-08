@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../../../api';
 import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
 
 function ItemDetails({ id }) {
   const [product, setProduct] = useState(null);
@@ -44,11 +45,13 @@ function ItemDetails({ id }) {
       const res = await api.post('/cart/add', { product_id: itemId, quantity });
       setMessage(res?.data?.message || 'Item added to cart!');
     } catch (e) {
-        console.error('Add to cart failed', {
-            status: e?.response?.status,
-            data: e?.response?.data
-        });
-        setError(e?.response?.data?.message || e.message || 'Failed to add item to cart.');
+      console.error('Add to cart failed', {
+        status: e?.response?.status,
+        data: e?.response?.data,
+      });
+      setError(
+        e?.response?.data?.message || e.message || 'Failed to add item to cart.'
+      );
     } finally {
       setAdding(false);
     }
@@ -63,11 +66,7 @@ function ItemDetails({ id }) {
         const response = await api.get(`/products/${id}`);
         if (!active) return;
         setProduct(response.data);
-        if (response.data?.stock > 0) {
-          setQuantity(1);
-        } else {
-          setQuantity(1);
-        }
+        setQuantity(1);
       } catch (e) {
         console.error('Error fetching product details:', e);
         if (!active) return;
@@ -90,55 +89,61 @@ function ItemDetails({ id }) {
 
   return (
     <Col xs={12} md={6} lg={4}>
-      <h2>{product?.name || 'Product name not available'}</h2>
-      <h4 className="text-muted">
-        {product?.description || 'No description available'}
-      </h4>
+      <Card className="shadow-sm border-0 rounded-3 p-3">
+        <Card.Body>
+          <h2 className="fw-bold mb-2">{product?.name || 'Unnamed Product'}</h2>
+          <p className="text-muted">{product?.description || 'No description available'}</p>
 
-      <p><strong>The Anniversary Sale</strong></p>
-      <p>
-        <span style={{ fontWeight: 'bold' }}>
-          Price ₱{product?.price || 'No description available'}
-        </span>
-      </p>
+          <p className="text-primary fw-semibold mb-2">The Anniversary Sale</p>
+          <h3 className="fw-bold text-success mb-3">
+            ₱{product?.price || 'N/A'}
+          </h3>
 
-      <p>SKU: {product?.barcode_value || 'N/A'}</p>
-      <p>
-        <strong>
-          {maxQty > 0 ? `Only ${maxQty} units left` : 'Out of stock'}
-        </strong>
-      </p>
+          <p className="mb-1"><small className="text-muted">SKU: {product?.barcode_value || 'N/A'}</small></p>
+          <p className="fw-semibold">
+            {maxQty > 0 ? `Only ${maxQty} units left` : 'Out of stock'}
+          </p>
 
-      <div className="d-flex align-items-center mb-2">
-        <button
-          className="btn btn-outline-secondary btn-sm me-2"
-          onClick={() => setQtyClamped(quantity - 1)}
-          disabled={quantity <= 1 || maxQty === 0}
-          aria-label="decrease quantity"
-        >
-          -
-        </button>
-        <span style={{ minWidth: 24, textAlign: 'center' }}>{quantity}</span>
-        <button
-          className="btn btn-outline-secondary btn-sm ms-2"
-          onClick={() => setQtyClamped(quantity + 1)}
-          disabled={maxQty === 0 || (maxQty && quantity >= maxQty)}
-          aria-label="increase quantity"
-        >
-          +
-        </button>
-      </div>
+          {/* Quantity Controls */}
+          <div className="d-flex align-items-center mb-3">
+            <button
+              className="btn btn-outline-dark btn-sm rounded-circle"
+              onClick={() => setQtyClamped(quantity - 1)}
+              disabled={quantity <= 1 || maxQty === 0}
+              aria-label="decrease quantity"
+            >
+              −
+            </button>
+            <span
+              className="mx-3 fw-semibold"
+              style={{ minWidth: 32, textAlign: 'center', fontSize: '1.1rem' }}
+            >
+              {quantity}
+            </span>
+            <button
+              className="btn btn-outline-dark btn-sm rounded-circle"
+              onClick={() => setQtyClamped(quantity + 1)}
+              disabled={maxQty === 0 || (maxQty && quantity >= maxQty)}
+              aria-label="increase quantity"
+            >
+              +
+            </button>
+          </div>
 
-      <button
-        className="btn btn-primary mb-3"
-        onClick={addToCart}
-        disabled={addDisabled}
-      >
-        {adding ? 'Adding…' : 'Add to Cart'}
-      </button>
+          {/* Add to cart button */}
+          <button
+            className="btn btn-primary w-100 mb-3 fw-semibold"
+            onClick={addToCart}
+            disabled={addDisabled}
+          >
+            {adding ? 'Adding…' : 'Add to Cart'}
+          </button>
 
-      {message && <div className="alert alert-success">{message}</div>}
-      {error && <div className="alert alert-danger">{error}</div>}
+          {/* Feedback messages */}
+          {message && <div className="alert alert-success py-2">{message}</div>}
+          {error && <div className="alert alert-danger py-2">{error}</div>}
+        </Card.Body>
+      </Card>
     </Col>
   );
 }
