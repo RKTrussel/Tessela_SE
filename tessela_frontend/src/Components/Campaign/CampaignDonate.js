@@ -12,7 +12,6 @@ import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import ListGroup from "react-bootstrap/ListGroup";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
 import InputGroup from "react-bootstrap/InputGroup";
 
 export default function CampaignDonate({ campaignId }) {
@@ -136,18 +135,23 @@ export default function CampaignDonate({ campaignId }) {
 }
 
 /* ---------- Donate Form ---------- */
+/* ---------- Donate Form ---------- */
 function DonateForm({ campaignId, onDone }) {
-  const [amount, setAmount] = useState(100);
+  const [amount, setAmount] = useState(0);
   const [message, setMessage] = useState("");
-  const [forceFail, setForceFail] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [lastPreset, setLastPreset] = useState(null);
 
-  const presets = [100, 250, 500, 1000];
+  const presets = [50, 100, 500, 1000];
 
   const submit = async (e) => {
     e.preventDefault();
+    if (!amount || amount <= 0) {
+      setError("Please enter a valid amount");
+      return;
+    }
     setLoading(true);
     setError(null);
     setResult(null);
@@ -155,12 +159,11 @@ function DonateForm({ campaignId, onDone }) {
       const { data } = await api.post(`/campaigns/${campaignId}/donations`, {
         amount: Number(amount),
         message,
-        force_fail: forceFail,
       });
       setResult(data);
       onDone?.();
-      // optional: reset message
       setMessage("");
+      setAmount(0);
     } catch (e) {
       setError(e?.response?.data?.error || e?.message || "Donation failed");
     } finally {
@@ -170,33 +173,48 @@ function DonateForm({ campaignId, onDone }) {
 
   return (
     <Form onSubmit={submit} noValidate>
-      <Row className="g-3">
+      <Row className="gy-3">
         <Col xs={12}>
-          <Form.Label>Amount (PHP)</Form.Label>
+          <Form.Label className="fw-semibold">Amount (PHP)</Form.Label>
           <InputGroup>
             <InputGroup.Text>₱</InputGroup.Text>
             <Form.Control
               type="number"
               min="1"
               step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              value={amount || ""}
+              onChange={(e) => setAmount(Number(e.target.value))}
               required
+              placeholder="Enter amount"
             />
           </InputGroup>
-          <div className="mt-2">
-            <ButtonGroup>
-              {presets.map((p) => (
-                <Button
-                  key={p}
-                  variant="outline-secondary"
-                  onClick={() => setAmount(p)}
-                  type="button"
-                >
-                  ₱{fmtMoney(p)}
-                </Button>
-              ))}
-            </ButtonGroup>
+
+          <div className="mt-2 d-flex flex-wrap gap-2">
+            {presets.map((p) => (
+              <Button
+                key={p}
+                variant={lastPreset === p ? "success" : "outline-secondary"}
+                onClick={() => {
+                  setAmount((prev) => Number(prev) + p);
+                  setLastPreset(p);
+                }}
+                type="button"
+              >
+                +₱{fmtMoney(p)}
+              </Button>
+            ))}
+            {amount > 0 && (
+              <Button
+                variant="outline-danger"
+                type="button"
+                onClick={() => {
+                  setAmount(0);
+                  setLastPreset(null); // ✅ proper null
+                }}
+              >
+                Clear
+              </Button>
+              )}
           </div>
         </Col>
 
@@ -204,24 +222,31 @@ function DonateForm({ campaignId, onDone }) {
           <Form.Label>Message (optional)</Form.Label>
           <Form.Control
             as="textarea"
-            rows={3}
+            rows={2}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Add a note to your donation"
+            placeholder="Add a note with your donation"
           />
         </Col>
 
         {error && (
           <Col xs={12}>
-            <Alert variant="danger" className="mb-0">{error}</Alert>
+            <Alert variant="danger" className="mb-0">
+              {error}
+            </Alert>
           </Col>
         )}
         {result && (
           <Col xs={12}>
-            <Alert variant={result.payment_status === "paid" ? "success" : "warning"} className="mb-0">
-              {result.payment_status === "paid"
-                ? <>Thank you! Ref: <strong>{result.payment_ref}</strong></>
-                : <>Status: <strong>{result.payment_status}</strong></>}
+            <Alert
+              variant={result.payment_status === "paid" ? "success" : "warning"}
+              className="mb-0"
+            >
+              {result.payment_status === "paid" ? (
+                <>🎉 Thank you! Ref: <strong>{result.payment_ref}</strong></>
+              ) : (
+                <>Status: <strong>{result.payment_status}</strong></>
+              )}
             </Alert>
           </Col>
         )}
@@ -234,7 +259,7 @@ function DonateForm({ campaignId, onDone }) {
                 Processing…
               </>
             ) : (
-              "Donate"
+              "Donate Now"
             )}
           </Button>
         </Col>
@@ -246,17 +271,19 @@ function DonateForm({ campaignId, onDone }) {
 /* ---------- Recent Donations ---------- */
 function RecentDonations({ donations }) {
   if (!donations?.length) {
-    return <div className="text-muted">No donations yet.</div>;
+    return <div className="text-muted fst-italic">No donations yet.</div>;
   }
   return (
     <ListGroup variant="flush" className="mt-2">
       {donations.map((d) => (
-        <ListGroup.Item key={d.donation_id}>
-          <div className="d-flex justify-content-between align-items-start">
+        <ListGroup.Item key={d.donation_id} className="py-2">
+          <div className="d-flex justify-content-between">
             <div>
-              <strong>₱{fmtMoney(d.amount)}</strong>
+              <span className="fw-bold text-success">₱{fmtMoney(d.amount)}</span>
               <div className="text-muted small">{fmtDate(d.created_at)}</div>
-              {d.message && <div className="mt-1 fst-italic">“{d.message}”</div>}
+              {d.message && (
+                <div className="mt-1 fst-italic text-dark">“{d.message}”</div>
+              )}
             </div>
           </div>
         </ListGroup.Item>
