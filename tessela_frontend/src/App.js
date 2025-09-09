@@ -23,6 +23,8 @@ import RequireAuth from './Components/Auth/Guards/RequireAuth';
 import RequireRole from './Components/Auth/Guards/RequireRole';
 import GuestOnly from './Components/Auth/Guards/GuestOnly';
 
+import SearchContainer from './Components/Shopping_Page/Containers/searchContainer';
+
 function CampaignDonateRoute() {
   const { id } = useParams();
   console.log("donate route id:", id); // <-- should log a number, not 'undefined'
@@ -53,6 +55,7 @@ function App() {
             <Route element={<RequireRole allow={['user']} />}>
               <Route path="/explore/:weavingType" element={<Explore />} />
               <Route path="/product/:id" element={<ItemContainer />} />
+              <Route path="/search" element={<SearchContainer />} /> 
               <Route path="/shoppingBag" element={<ShoppingBagContainer />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/marketplace" element={<MarketPlaceContainer />} />

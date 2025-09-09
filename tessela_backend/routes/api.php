@@ -14,6 +14,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\ReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,7 @@ Route::put('/products/{product}', [AdminController::class, 'updateItem']);
 Route::delete('/products/{product}', [AdminController::class, 'destroyItem']);
 
 Route::get('/products', [ProductController::class, 'getDetails']);
+Route::get('/products/{product_id}/related', [ProductController::class, 'related']);
 
 Route::get('/search', [UserController::class, 'searchItem']);
 
@@ -85,6 +87,9 @@ Route::middleware('token.auth')->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
     Route::post('/blogs/{blog}/like', [LikeController::class, 'toggle']);
+
+    Route::get('/products/{product_id}/reviews', [ReviewController::class, 'index']);
+  Route::post('/products/{product_id}/reviews', [ReviewController::class, 'store']);
 });
 
 // solo middleware

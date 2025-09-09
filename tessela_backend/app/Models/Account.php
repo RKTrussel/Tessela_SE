@@ -15,8 +15,20 @@ class Account extends Model
 
     protected $table = 'accounts';
     protected $primaryKey = 'account_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = ['name','email','password','role','gender','birthday'];
+
+    protected $casts = [
+        'birthday' => 'date:Y-m-d',
+    ];
+
+    public function setRoleAttribute($value): void
+    {
+        $v = strtolower((string) $value);
+        $this->attributes['role'] = in_array($v, ['user','admin'], true) ? $v : 'user';
+    }
     
     protected $hidden = [
         'password',

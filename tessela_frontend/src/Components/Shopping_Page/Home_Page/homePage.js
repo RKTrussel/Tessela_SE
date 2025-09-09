@@ -19,7 +19,12 @@ function homePage() {
          <Background />
         <Navbar /> 
         <SecondNavbar />
-          <Carousel indicators={false}>
+          <Carousel 
+            indicators={false} 
+            interval={5000}   
+            pause="hover"     
+            controls          
+          >
             <Carousel.Item>
               <Hero />
             </Carousel.Item>

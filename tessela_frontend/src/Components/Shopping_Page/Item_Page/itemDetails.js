@@ -88,13 +88,14 @@ function ItemDetails({ id }) {
     adding || !itemId || maxQty === 0 || !quantity || quantity < 1;
 
   return (
-    <Col xs={12} md={6} lg={4}>
-      <Card className="shadow-sm border-0 rounded-3 p-3">
+    <Col xs={12} md={6} lg={3}>
+      <Card className="border-0">
         <Card.Body>
           <h2 className="fw-bold mb-2">{product?.name || 'Unnamed Product'}</h2>
           <p className="text-muted">{product?.description || 'No description available'}</p>
 
           <p className="text-primary fw-semibold mb-2">The Anniversary Sale</p>
+          <hr />
           <h3 className="fw-bold text-success mb-3">
             ₱{product?.price || 'N/A'}
           </h3>

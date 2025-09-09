@@ -13,14 +13,14 @@ class CommentController extends Controller
         $blog = Blog::findOrFail($blog_id);
 
         $comments = $blog->comments()
-            ->with('user') // eager load user
+            ->with('user')
             ->latest()
             ->get()
             ->map(function ($c) {
                 return [
                     'comment_id' => $c->comment_id,
                     'content'    => $c->content,
-                    'author'     => $c->user ? $c->user->name : null, // Get name from accounts table
+                    'author'     => $c->user ? $c->user->name : null,
                     'created_at' => $c->created_at,
                 ];
             });
