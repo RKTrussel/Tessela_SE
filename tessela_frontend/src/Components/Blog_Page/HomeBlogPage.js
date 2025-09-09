@@ -1,41 +1,40 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Button, Spinner } from "react-bootstrap";
-import api from "../../api"; // Assuming you already have api setup for axios
+import { Container, Row, Col, Card, Button, Spinner, Modal } from "react-bootstrap";
+import api from "../../api";
 import Navbar from "../Shopping_Page/Navbar/Navbar";
 import SecondNavbar from "../Shopping_Page/Navbar/SecondNavbar";
 import BlogDetail from "./BlogDetails";
-import './HomeBlogPage.css';
+import UserCreateBlog from "./Blog_Creation/UserCreateBlog"; // 👈 use the user version
+import "./HomeBlogPage.css";
 
-export default function MyBlog() {
+export default function HomeBlogPage() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [search, setSearch] = useState(""); // Optional search filter
+  const [search, setSearch] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const stripHtml = (html) => {
-  if (!html) return "";
-  return html.replace(/<[^>]+>/g, ""); // remove <p>, <div>, etc.
+    if (!html) return "";
+    return html.replace(/<[^>]+>/g, "");
   };
 
-  // Fetch blog posts without sorting
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
         setLoading(true);
         const params = { search };
-
-        // Fetch blogs without sorting
-        const response = await api.get('/blogs', { params });
-        setBlogs(response.data); // Assuming response contains a list of blogs
-        setLoading(false);
+        const response = await api.get("/blogs", { params });
+        setBlogs(response.data);
       } catch (error) {
-        console.error('Error fetching blogs:', error);
+        console.error("Error fetching blogs:", error);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchBlogs();
-  }, [search]);  // Refetch blogs when `search` changes
+  }, [search]);
 
   return (
     <>
@@ -46,7 +45,18 @@ export default function MyBlog() {
         <BlogDetail post={selectedPost} onBack={() => setSelectedPost(null)} />
       ) : (
         <Container className="mt-4">
-          <h2 className="journal-title">BLOGS</h2>
+          <div className="d-flex justify-content-between align-items-center mb-1">
+            <h2 className="journal-title mb-0">BLOGS</h2>
+            <Button
+              variant="outline-primary"
+              className="position-fixed bottom-0 end-0 m-4 rounded-circle shadow-lg"
+              style={{ width: "60px", height: "60px", fontSize: "24px" }}
+              onClick={() => setShowAddModal(true)}
+            >
+              ✍️
+            </Button>
+          </div>
+
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" />
@@ -76,18 +86,18 @@ export default function MyBlog() {
                       />
                     </div>
                     <Card.Body>
-                        <Card.Title className="blog-title">{post.title}</Card.Title>
-                        <Card.Text className="blog-excerpt">
-                          {stripHtml(post.excerpt) ||
-                            stripHtml(post.content).substring(0, 100) + "..."}
-                        </Card.Text>
-                        <Button
-                          variant="link"
-                          className="read-more"
-                          onClick={() => setSelectedPost(post)}
-                        >
-                          Read more →
-                        </Button>
+                      <Card.Title className="blog-title">{post.title}</Card.Title>
+                      <Card.Text className="blog-excerpt">
+                        {stripHtml(post.excerpt) ||
+                          stripHtml(post.content).substring(0, 100) + "..."}
+                      </Card.Text>
+                      <Button
+                        variant="link"
+                        className="read-more"
+                        onClick={() => setSelectedPost(post)}
+                      >
+                        Read more →
+                      </Button>
                     </Card.Body>
                   </Card>
                 </Col>
@@ -96,6 +106,20 @@ export default function MyBlog() {
           )}
         </Container>
       )}
+
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Create a New Blog</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <UserCreateBlog
+            onSave={(newBlog) => {
+              setBlogs((prev) => [newBlog.blog, ...prev]);
+              setShowAddModal(false);
+            }}
+          />
+        </Modal.Body>
+      </Modal>
 
       <footer className="bg-dark text-light text-center py-3 mt-4">
         <p className="mb-0">© 2025 My Blog. All rights reserved.</p>

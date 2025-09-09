@@ -4,8 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from './Components/Shopping_Page/Home_Page/homePage';
 import Explore from './Components/Shopping_Page/Containers/exploreContainer';
 import ItemContainer from './Components/Shopping_Page/Containers/itemContainer';
-import ShoppingBagContainer from './Components/Shopping_Page/Containers/shoppingBagContainer';
-import Checkout from './Components/Shopping_Page/CheckOut/checkout';
+import { ShoppingBagContainer , CheckoutContainer  } from './Components/Shopping_Page/Containers/cartCheckoutContainer';
 import MarketPlaceContainer from './Components/Shopping_Page/Containers/marketPlaceContainer';
 import AddressContainer from './Components/Shopping_Page/Containers/addressContainer';
 
@@ -57,7 +56,7 @@ function App() {
               <Route path="/product/:id" element={<ItemContainer />} />
               <Route path="/search" element={<SearchContainer />} /> 
               <Route path="/shoppingBag" element={<ShoppingBagContainer />} />
-              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/checkout" element={<CheckoutContainer />} />
               <Route path="/marketplace" element={<MarketPlaceContainer />} />
               <Route path="/account" element={<AddressContainer />} />
             </Route>

@@ -31,6 +31,7 @@ class BlogSeeder extends Seeder
                 'author' => $blogData['author'],
                 'content' => $blogData['content'],
                 'date' => $date,
+                'status'  => 'published', 
             ]);
 
             if(!empty($blogData['images'])) {

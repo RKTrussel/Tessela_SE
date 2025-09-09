@@ -9,11 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('blogs', function (Blueprint $table) {
-            $table->id('blog_id'); // <- custom PK
+            $table->id('blog_id');
             $table->string('title');
             $table->string('author');
             $table->text('content');
             $table->date('date');
+            $table->enum('status', ['draft', 'published'])->default('draft');
             $table->timestamps();
         });
     }

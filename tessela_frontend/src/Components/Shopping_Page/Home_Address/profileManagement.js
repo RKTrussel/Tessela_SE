@@ -23,7 +23,15 @@ export default function ProfileManagement() {
         <p><strong>Name:</strong> {account?.name}</p>
         <p><strong>Email:</strong> {account?.email}</p>
         <p><strong>Gender:</strong> {account?.gender}</p>
-        <p><strong>Birthday:</strong> {account?.birthday}</p>
+        <p><strong>Birthday:</strong>{" "}
+          {account?.birthday
+            ? new Date(account.birthday).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            : "—"}
+        </p>
       </Card.Body>
     </Card>
   );

@@ -30,8 +30,6 @@ use App\Http\Controllers\ReviewController;
 // Public routes
 Route::get('/campaigns', [CampaignController::class, 'index']);
 Route::get('/campaigns/{campaign:campaign_id}', [CampaignController::class, 'show']);
-Route::get('/blogs', [BlogController::class, 'index']);
-Route::get('/blogs/{blog}', [BlogController::class, 'show']);
 
 
 Route::post('/products', [AdminController::class, 'addItem']);
@@ -53,42 +51,41 @@ Route::get('/campaigns/{campaign:campaign_id}/donations', [DonationController::c
 Route::post('/campaigns/{campaign:campaign_id}/donations', [DonationController::class, 'store']);
 
 Route::middleware('token.auth')->group(function () {
-    Route::post('/cart/add', [UserController::class, 'addToCart']);
-    Route::get('/cart', [CartController::class, 'show']);
-    Route::put('/cart/items/{id}', [CartController::class, 'updateItem']);
-    Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);
-    Route::post('/cart/clear', [CartController::class, 'clear']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-    
-    Route::get('/addresses', [AddressController::class, 'index']);
-    Route::post('/addresses', [AddressController::class, 'store']);
-    Route::put('/addresses/{address}', [AddressController::class, 'update']);
-    Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
+  Route::post('/cart/add', [UserController::class, 'addToCart']);
+  Route::get('/cart', [CartController::class, 'show']);
+  Route::put('/cart/items/{id}', [CartController::class, 'updateItem']);
+  Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);
+  Route::post('/cart/clear', [CartController::class, 'clear']);
+  Route::post('/logout', [AuthController::class, 'logout']);
+  
+  Route::get('/addresses', [AddressController::class, 'index']);
+  Route::post('/addresses', [AddressController::class, 'store']);
+  Route::put('/addresses/{address}', [AddressController::class, 'update']);
+  Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
 
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
+  Route::post('/orders', [OrderController::class, 'store']);
+  Route::get('/orders', [OrderController::class, 'index']);
+  Route::get('/orders/{order}', [OrderController::class, 'show']);
 
-    Route::patch('/admin/orders/{order}/status', [OrderController::class, 'updateStatus']);
+  Route::patch('/admin/orders/{order}/status', [OrderController::class, 'updateStatus']);
 
-    Route::post('/campaigns', [CampaignController::class, 'store']);
-    Route::patch('/campaigns/{campaign}/status', [CampaignController::class, 'updateStatus']);
-    Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
-    Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy']);
+  Route::post('/campaigns', [CampaignController::class, 'store']);
+  Route::patch('/campaigns/{campaign}/status', [CampaignController::class, 'updateStatus']);
+  Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
+  Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy']);
 
-    Route::post('/blogs', [BlogController::class, 'store']);
-    Route::put('/blogs/{blog}', [BlogController::class, 'update']);
-    Route::delete('/blogs/{blog}', [BlogController::class, 'destroy']);
+  Route::apiResource('blogs', BlogController::class);
 
-    
-    Route::get('/blogs/{blog}/comments', [CommentController::class, 'index']);  
+  Route::get('/admin/blogs', [BlogController::class, 'adminIndex']);
+  
+  Route::get('/blogs/{blog}/comments', [CommentController::class, 'index']);  
 
-    Route::post('/blogs/{blog}/comments', [CommentController::class, 'store']);
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+  Route::post('/blogs/{blog}/comments', [CommentController::class, 'store']);
+  Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
-    Route::post('/blogs/{blog}/like', [LikeController::class, 'toggle']);
+  Route::post('/blogs/{blog}/like', [LikeController::class, 'toggle']);
 
-    Route::get('/products/{product_id}/reviews', [ReviewController::class, 'index']);
+  Route::get('/products/{product_id}/reviews', [ReviewController::class, 'index']);
   Route::post('/products/{product_id}/reviews', [ReviewController::class, 'store']);
 });
 

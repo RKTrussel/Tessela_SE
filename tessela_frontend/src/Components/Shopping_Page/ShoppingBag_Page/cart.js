@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import Button from "react-bootstrap/Button";
-import Container from "react-bootstrap/Container";
-import Table from "react-bootstrap/Table";
-import CartItem from "./cartItem";
-import api from "../../../api";
+import { Button, Container, Table, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import api from "../../../api";
+import CartItem from "./cartItem";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -16,7 +14,7 @@ const Cart = () => {
 
   const fetchCart = async () => {
     try {
-      const { data } = await api.get('/cart');
+      const { data } = await api.get("/cart");
 
       const rawItems =
         Array.isArray(data) ? data :
@@ -24,9 +22,9 @@ const Cart = () => {
         Array.isArray(data.cart?.items) ? data.cart.items :
         [];
 
-      const items = rawItems.map(i => ({
-        product_id: i.product_id ?? i.id,   // ✅ always use product_id
-        name: i.name ?? i.title ?? '—',
+      const items = rawItems.map((i) => ({
+        product_id: i.product_id ?? i.id,
+        name: i.name ?? i.title ?? "—",
         price: Number(i.price ?? 0),
         quantity: Number(i.quantity ?? i.qty ?? 1),
         image: i.image_url ?? i.image ?? i.images?.[0]?.url ?? null,
@@ -35,43 +33,40 @@ const Cart = () => {
 
       setCartItems(items);
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      console.error("Error fetching cart:", error);
       setCartItems([]);
     }
   };
 
-  // 🔹 Update quantity (+ / −)
   const handleQuantityChange = async (productId, change) => {
-    setCartItems(prev =>
-      prev.map(item =>
+    setCartItems((prev) =>
+      prev.map((item) =>
         item.product_id === productId
           ? { ...item, quantity: Math.max(1, item.quantity + change) }
           : item
       )
     );
     try {
-      const item = cartItems.find(i => i.product_id === productId);
+      const item = cartItems.find((i) => i.product_id === productId);
       if (!item) return;
       const newQuantity = Math.max(1, (item.quantity || 1) + change);
       await api.put(`/cart/items/${productId}`, { quantity: newQuantity });
     } catch (error) {
-      console.error('Error updating quantity:', error);
-      fetchCart(); // fallback sync
-    }
-  };
-
-  // 🔹 Delete single item
-  const handleDelete = async (productId) => {
-    setCartItems(prev => prev.filter(i => i.product_id !== productId));
-    try {
-      await api.delete(`/cart/items/${productId}`);
-    } catch (error) {
-      console.error('Error removing item:', error);
+      console.error("Error updating quantity:", error);
       fetchCart();
     }
   };
 
-  // 🔹 Clear all items
+  const handleDelete = async (productId) => {
+    setCartItems((prev) => prev.filter((i) => i.product_id !== productId));
+    try {
+      await api.delete(`/cart/items/${productId}`);
+    } catch (error) {
+      console.error("Error removing item:", error);
+      fetchCart();
+    }
+  };
+
   const handleClearCart = async () => {
     setCartItems([]);
     try {
@@ -82,10 +77,9 @@ const Cart = () => {
     }
   };
 
-  // 🔹 Select items for checkout
   const handleSelect = (productId) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
         item.product_id === productId
           ? { ...item, selected: !item.selected }
           : item
@@ -93,70 +87,70 @@ const Cart = () => {
     );
   };
 
-  // 🔹 Checkout
-  const selectedItems = cartItems.filter(i => i.selected);
-  const totalPrice = cartItems.reduce(
+  const selectedItems = cartItems.filter((i) => i.selected);
+  const totalPrice = selectedItems.reduce(
     (sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 0),
     0
   );
 
   const handleCheckout = () => {
     if (selectedItems.length === 0) return;
-
-    console.log("Selected items for checkout:", selectedItems);
-
-    sessionStorage.setItem('checkoutItems', JSON.stringify(selectedItems));
-    navigate('/checkout');
+    sessionStorage.setItem("checkoutItems", JSON.stringify(selectedItems));
+    navigate("/checkout");
   };
 
-
   return (
-    <Container className="mt-4">
-      <h3>Shopping Cart</h3>
+    <Container className="mt-4 mb-5">
+      <h3 className="fw-bold mb-4">🛒 Shopping Cart</h3>
 
-      <div className="mb-3 d-flex justify-content-between align-items-center">
-        <Button
-          variant="danger"
-          onClick={handleClearCart}
-          disabled={cartItems.length === 0}
-        >
-          Clear Cart
-        </Button>
+      {cartItems.length === 0 ? (
+        <Alert variant="info">Your cart is empty. Add some products!</Alert>
+      ) : (
+        <>
+          <div className="mb-3 d-flex justify-content-between align-items-center">
+            <Button
+              variant="outline-danger"
+              onClick={handleClearCart}
+              disabled={cartItems.length === 0}
+            >
+              🗑 Clear Cart
+            </Button>
 
-        <Button
-          variant="primary"
-          disabled={selectedItems.length === 0}
-          onClick={handleCheckout}
-        >
-          Checkout ({selectedItems.length})
-        </Button>
-      </div>
+            <Button
+              variant="success"
+              className="px-4"
+              disabled={selectedItems.length === 0}
+              onClick={handleCheckout}
+            >
+              ✅ Checkout ({selectedItems.length}) — ₱{totalPrice.toLocaleString()}
+            </Button>
+          </div>
 
-      <Table bordered responsive hover>
-        <thead>
-          <tr>
-            <th>Select</th>
-            <th>Product</th>
-            <th>Unit Price</th>
-            <th>Quantity</th>
-            <th>Total Price</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cartItems.map((item) => (
-            <CartItem
-              key={item.product_id}
-              item={item}
-              onQuantityChange={handleQuantityChange}
-              onDelete={handleDelete}
-              onSelect={handleSelect}
-            />
-          ))}
-        </tbody>
-      </Table>
-
-      <h5 className="text-end">Total: ₱{totalPrice}</h5>
+          <Table striped bordered hover responsive className="bg-white shadow-sm rounded">
+            <thead className="table-light">
+              <tr>
+                <th className="text-center">Select</th>
+                <th>Product</th>
+                <th className="text-center">Unit Price</th>
+                <th className="text-center">Quantity</th>
+                <th className="text-center">Total</th>
+                <th className="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cartItems.map((item) => (
+                <CartItem
+                  key={item.product_id}
+                  item={item}
+                  onQuantityChange={handleQuantityChange}
+                  onDelete={handleDelete}
+                  onSelect={handleSelect}
+                />
+              ))}
+            </tbody>
+          </Table>
+        </>
+      )}
     </Container>
   );
 };

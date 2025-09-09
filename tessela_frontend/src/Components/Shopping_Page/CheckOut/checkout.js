@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../../../api";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Card from "react-bootstrap/Card";
-import ListGroup from "react-bootstrap/ListGroup";
-import Button from "react-bootstrap/Button";
-import Alert from "react-bootstrap/Alert";
-import Spinner from "react-bootstrap/Spinner";
-import Form from "react-bootstrap/Form";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  ListGroup,
+  Button,
+  Alert,
+  Spinner,
+  Form,
+} from "react-bootstrap";
 
 const php = (n) => {
   const num = Number(n || 0);
@@ -26,15 +28,11 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-
-  // Address state
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
-
-  // Payment
   const [paymentMethod, setPaymentMethod] = useState("cod");
 
-  // ✅ Load checkout items from sessionStorage
+  // ✅ Load checkout items
   useEffect(() => {
     const raw = sessionStorage.getItem("checkoutItems");
     if (!raw) {
@@ -53,9 +51,10 @@ export default function Checkout() {
     }
   }, [navigate]);
 
-  // ✅ Fetch addresses from API
+  // ✅ Fetch addresses
   useEffect(() => {
-    api.get("/addresses")
+    api
+      .get("/addresses")
       .then((res) => {
         setAddresses(res.data);
         const def = res.data.find((a) => a.is_default) || res.data[0];
@@ -68,7 +67,10 @@ export default function Checkout() {
     () => items.reduce((s, i) => s + Number(i.price || 0) * Number(i.quantity || 0), 0),
     [items]
   );
-  const shippingFee = useMemo(() => (subTotal >= 2000 ? 0 : (items.length ? 99 : 0)), [subTotal, items.length]);
+  const shippingFee = useMemo(
+    () => (subTotal >= 2000 ? 0 : items.length ? 99 : 0),
+    [subTotal, items.length]
+  );
   const grandTotal = useMemo(() => subTotal + shippingFee, [subTotal, shippingFee]);
 
   const handlePlaceOrder = async (e) => {
@@ -86,43 +88,38 @@ export default function Checkout() {
     }
 
     const payload = {
-    items: items.map((i) => ({
-      product_id: i.product_id ?? i.id,
-      quantity: Number(i.quantity || 1),
-      price: Number(i.price || 0),
-    })),
-    shipping: {
-      full_name: selectedAddress.name,
-      email: selectedAddress.email,
-      phone: selectedAddress.phone,
-      address_line1: selectedAddress.address_line1,
-      city: selectedAddress.city,
-      province: selectedAddress.province,
-      postal_code: selectedAddress.postal_code,
-    },
-    payment: {
-      method: paymentMethod,
-    },
-    amounts: {
-      subtotal: subTotal,
-      shipping_fee: shippingFee,
-      total: grandTotal,
-    },
-  };
+      items: items.map((i) => ({
+        product_id: i.product_id ?? i.id,
+        quantity: Number(i.quantity || 1),
+        price: Number(i.price || 0),
+      })),
+      shipping: {
+        full_name: selectedAddress.name,
+        email: selectedAddress.email,
+        phone: selectedAddress.phone,
+        address_line1: selectedAddress.address_line1,
+        city: selectedAddress.city,
+        province: selectedAddress.province,
+        postal_code: selectedAddress.postal_code,
+      },
+      payment: { method: paymentMethod },
+      amounts: {
+        subtotal: subTotal,
+        shipping_fee: shippingFee,
+        total: grandTotal,
+      },
+    };
 
     try {
       setSubmitting(true);
       const { data } = await api.post("/orders", payload);
-
       const orderId = data?.order_id ?? data?.id ?? data?.order?.id ?? null;
-      setSuccessMsg(`Order placed successfully${orderId ? ` (Order #${orderId})` : ""}!`);
-
+      setSuccessMsg(
+        `🎉 Order placed successfully${orderId ? ` (Order #${orderId})` : ""}!`
+      );
       sessionStorage.removeItem("checkoutItems");
 
-      setTimeout(() => {
-        navigate("/shoppingBag");
-      }, 2000);
-
+      setTimeout(() => navigate("/shoppingBag"), 2000);
     } catch (error) {
       console.error(error);
       const msg =
@@ -133,30 +130,30 @@ export default function Checkout() {
     } finally {
       setSubmitting(false);
     }
-
   };
 
   return (
-    <Container className="mt-4">
+    <Container className="mt-4 mb-5">
+      {errorMsg && <Alert variant="danger">{errorMsg}</Alert>}
+      {successMsg && <Alert variant="success">{successMsg}</Alert>}
 
-      {errorMsg && <Alert variant="danger" className="mt-3">{errorMsg}</Alert>}
-      {successMsg && <Alert variant="success" className="mt-3">{successMsg}</Alert>}
-
-      <Row className="mt-3">
+      <Row className="mt-3 g-4">
         {/* Shipping + Payment */}
         <Col lg={8}>
-          <Card className="mb-3">
-            <Card.Header>Shipping Address</Card.Header>
+          {/* Shipping */}
+          <Card className="mb-4 shadow-sm rounded-3">
+            <Card.Header className="fw-semibold">📦 Shipping Address</Card.Header>
             <Card.Body>
               {selectedAddress ? (
                 <>
-                  <p><strong>{selectedAddress.name}</strong></p>
-                  <p>{selectedAddress.phone}</p>
-                  <p>{selectedAddress.email}</p>
-                  <p>
+                  <p className="mb-1 fw-bold">{selectedAddress.name}</p>
+                  <p className="mb-1">{selectedAddress.phone}</p>
+                  <p className="mb-1">{selectedAddress.email}</p>
+                  <p className="mb-3 text-muted">
                     {selectedAddress.address_line1}, {selectedAddress.city},{" "}
                     {selectedAddress.province}, {selectedAddress.postal_code}
                   </p>
+
                   <Form.Select
                     className="mb-3"
                     value={selectedAddress.address_id}
@@ -173,21 +170,22 @@ export default function Checkout() {
                       </option>
                     ))}
                   </Form.Select>
-                  <Button
-                    variant="link"
-                    onClick={() => navigate("/account")}
-                  >
+
+                  <Button variant="outline-primary" size="sm" onClick={() => navigate("/account")}>
                     Manage Addresses
                   </Button>
                 </>
               ) : (
-                <p>No address found. <Link to="/account">Add one here</Link></p>
+                <p>
+                  No address found. <Link to="/account">Add one here</Link>
+                </p>
               )}
             </Card.Body>
           </Card>
 
-          <Card className="mb-3">
-            <Card.Header>Payment</Card.Header>
+          {/* Payment */}
+          <Card className="mb-4 shadow-sm rounded-3">
+            <Card.Header className="fw-semibold">💳 Payment Method</Card.Header>
             <Card.Body>
               <Form.Check
                 type="radio"
@@ -201,17 +199,20 @@ export default function Checkout() {
             </Card.Body>
           </Card>
 
-          <div className="d-flex gap-2 mt-3">
+          {/* Action Buttons */}
+          <div className="d-flex gap-3 mt-4">
             <Button
-              variant="secondary"
+              variant="outline-secondary"
+              size="lg"
               onClick={() => navigate("/shoppingBag")}
               disabled={submitting}
             >
-              Edit Cart
+              🛒 Edit Cart
             </Button>
             <Button
-              variant="primary"
-              type="submit"
+              variant="success"
+              size="lg"
+              className="px-4 shadow-sm"
               disabled={submitting || items.length === 0}
               onClick={handlePlaceOrder}
             >
@@ -221,7 +222,7 @@ export default function Checkout() {
                   Placing Order...
                 </>
               ) : (
-                `Checkout (${php(grandTotal)})`
+                `✅ Checkout (${php(grandTotal)})`
               )}
             </Button>
           </div>
@@ -229,18 +230,19 @@ export default function Checkout() {
 
         {/* Order Summary */}
         <Col lg={4}>
-          <Card className="mb-3">
-            <Card.Header>Order Summary</Card.Header>
+          <Card className="shadow-sm rounded-3">
+            <Card.Header className="fw-semibold">🧾 Order Summary</Card.Header>
             <ListGroup variant="flush">
               {items.map((i) => (
-                <ListGroup.Item key={i.id} className="d-flex justify-content-between">
+                <ListGroup.Item
+                  key={i.id}
+                  className="d-flex justify-content-between align-items-center"
+                >
                   <div style={{ maxWidth: "70%" }}>
                     <div className="fw-semibold">{i.name}</div>
                     <div className="text-muted small">Qty: {i.quantity}</div>
                   </div>
-                  <div className="text-end">
-                    {php((Number(i.price) || 0) * (Number(i.quantity) || 0))}
-                  </div>
+                  <div className="fw-bold">{php((i.price || 0) * (i.quantity || 0))}</div>
                 </ListGroup.Item>
               ))}
               <ListGroup.Item className="d-flex justify-content-between">
@@ -251,9 +253,9 @@ export default function Checkout() {
                 <span>Shipping</span>
                 <strong>{shippingFee === 0 ? "FREE" : php(shippingFee)}</strong>
               </ListGroup.Item>
-              <ListGroup.Item className="d-flex justify-content-between">
-                <span>Total</span>
-                <strong>{php(grandTotal)}</strong>
+              <ListGroup.Item className="d-flex justify-content-between bg-light">
+                <span className="fw-semibold">Total</span>
+                <span className="fw-bold text-success">{php(grandTotal)}</span>
               </ListGroup.Item>
             </ListGroup>
           </Card>

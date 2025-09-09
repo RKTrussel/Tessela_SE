@@ -1,6 +1,4 @@
-import Button from "react-bootstrap/Button";
-import Image from "react-bootstrap/Image";
-import Form from "react-bootstrap/Form";
+import { Button, Image, Form } from "react-bootstrap";
 
 const CartItem = ({ item, onQuantityChange, onDelete, onSelect }) => {
   return (
@@ -9,7 +7,7 @@ const CartItem = ({ item, onQuantityChange, onDelete, onSelect }) => {
         <Form.Check
           type="checkbox"
           checked={item.selected}
-          onChange={() => onSelect(item.product_id)}   // ✅ use product_id
+          onChange={() => onSelect(item.product_id)}
         />
       </td>
       <td>
@@ -18,40 +16,46 @@ const CartItem = ({ item, onQuantityChange, onDelete, onSelect }) => {
             src={item.image || "https://via.placeholder.com/80"}
             rounded
             style={{ width: "80px", height: "80px", objectFit: "cover" }}
-            className="me-3"
+            className="me-3 border"
           />
           <div>
-            <p className="mb-1 fw-bold">{item.name}</p>
-            <small className="text-muted">{item.variation}</small>
+            <p className="mb-1 fw-semibold">{item.name}</p>
+            {item.variation && (
+              <small className="text-muted">{item.variation}</small>
+            )}
           </div>
         </div>
       </td>
-      <td>₱{item.price}</td>
-      <td>
+      <td className="text-center fw-bold text-success">₱{item.price}</td>
+      <td className="text-center">
         <Button
           variant="outline-secondary"
           size="sm"
+          className="me-1"
           onClick={() => onQuantityChange(item.product_id, -1)}
         >
           −
         </Button>
-        <span className="mx-2">{item.quantity}</span>
+        <span className="mx-2 fw-semibold">{item.quantity}</span>
         <Button
           variant="outline-secondary"
           size="sm"
+          className="ms-1"
           onClick={() => onQuantityChange(item.product_id, 1)}
         >
           +
         </Button>
       </td>
-      <td>₱{item.price * item.quantity}</td>
-      <td>
+      <td className="text-center fw-bold">
+        ₱{(item.price * item.quantity).toLocaleString()}
+      </td>
+      <td className="text-center">
         <Button
-          variant="link"
-          className="text-danger p-0"
+          variant="outline-danger"
+          size="sm"
           onClick={() => onDelete(item.product_id)}
         >
-          Delete
+          🗑 Remove
         </Button>
       </td>
     </tr>
