@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('gender', ['Male', 'Female'])->nullable();
             $table->date('birthday')->nullable();
             $table->enum('role', ['admin', 'user']); 
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
         });
 

@@ -9,12 +9,12 @@ use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        Log::info('Incoming request data: ', $request->all());
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:accounts',
@@ -23,18 +23,21 @@ class AuthController extends Controller
             'gender' => 'nullable|in:Male,Female',
         ]);
 
-        if (Account::register(
-            $validated['name'],
-            $validated['email'],
-            $validated['password'],
-            $validated['birthday'],
-            $validated['gender'],
-            $validated['role'] = 'user',
-        )) {
-            return response()->json(['message' => 'Account created successfully'], 201);
-        }
+        $account = Account::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            'birthday' => $validated['birthday'],
+            'gender' => $validated['gender'],
+            'role' => 'user',
+        ]);
 
-        return response()->json(['error' => 'Registration failed'], 500);
+        // 🚀 Send verification email
+        event(new Registered($account));
+
+        return response()->json([
+            'message' => 'Account created successfully. Please check your email to verify.',
+        ], 201);
     }
 
     public function login(Request $request)
@@ -46,19 +49,26 @@ class AuthController extends Controller
 
         $result = Account::login($validated['email'], $validated['password']);
 
-        if ($result) {
-            $user  = $result['user'];
-            $token = $result['token'];
-
-            return response()->json([
-                'message' => 'Login successful',
-                'user'    => $user,
-                'role'    => $user->role,
-                'token'   => $token,
-            ], 200);
+        // If login failed (wrong email or password)
+        if (!$result) {
+            return response()->json(['error' => 'Login failed'], 401);
         }
 
-        return response()->json(['error' => 'Login failed'], 401);
+        // If email not verified
+        if (! $result['user']->hasVerifiedEmail()) {
+            return response()->json(['error' => 'Please verify your email before logging in.'], 403);
+        }
+
+        // Success
+        $user  = $result['user'];
+        $token = $result['token'];
+
+        return response()->json([
+            'message' => 'Login successful',
+            'user'    => $user,
+            'role'    => $user->role,
+            'token'   => $token,
+        ], 200);
     }
 
     public function logout(Request $request)

@@ -16,6 +16,11 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\ReviewController;
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Models\Account;
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -46,6 +51,32 @@ Route::get('/products/{id}', [UserController::class, 'viewItemDetails']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+    Log::info('Verification attempt (User model)', ['id' => $id, 'hash' => $hash]);
+
+    $user = User::find($id);
+
+    if (! $user) {
+        Log::error('User not found in accounts table (User model)', ['id' => $id]);
+        return response()->json(['error' => 'User not found'], 404);
+    }
+
+    if (! hash_equals($hash, sha1($user->getEmailForVerification()))) {
+        return response()->json(['error' => 'Invalid verification link'], 400);
+    }
+
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+    }
+
+    return response()->json(['message' => 'Email verified successfully!']);
+})->middleware('signed')->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return response()->json(['message' => 'Verification link resent.']);
+})->middleware(['token.auth', 'throttle:6,1'])->name('verification.send');
 
 Route::get('/campaigns/{campaign:campaign_id}/donations', [DonationController::class, 'index']);
 Route::post('/campaigns/{campaign:campaign_id}/donations', [DonationController::class, 'store']);

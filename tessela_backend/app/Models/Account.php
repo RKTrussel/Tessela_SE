@@ -3,15 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Models\Cart;
+use Illuminate\Notifications\Notifiable;
+use App\Notifications\CustomVerifyEmail;
 
-class Account extends Model
+class Account extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $table = 'accounts';
     protected $primaryKey = 'account_id';
@@ -22,6 +24,7 @@ class Account extends Model
 
     protected $casts = [
         'birthday' => 'date:Y-m-d',
+        'email_verified_at' => 'datetime',
     ];
 
     public function setRoleAttribute($value): void
@@ -29,7 +32,17 @@ class Account extends Model
         $v = strtolower((string) $value);
         $this->attributes['role'] = in_array($v, ['user','admin'], true) ? $v : 'user';
     }
-    
+
+    public function getKeyName()
+    {
+        return 'account_id';
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail);
+    }
+
     protected $hidden = [
         'password',
     ];

@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
                 'role'     => 'user',          // must match your DB enum/allowed values
                 'gender'   => 'Male',          // nullable if not required
                 'birthday' => '2004-09-09',    // YYYY-MM-DD
+                'email_verified_at' => now(), 
             ]
         );
     }

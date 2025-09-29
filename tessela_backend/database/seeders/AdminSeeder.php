@@ -19,6 +19,7 @@ class AdminSeeder extends Seeder
                 'role' => 'admin',
                 'gender' => 'Male',                     // or null
                 'birthday' => '1990-01-01',            // YYYY-MM-DD
+                'email_verified_at' => now(), 
             ]
         );
     }
