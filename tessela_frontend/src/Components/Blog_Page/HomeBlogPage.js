@@ -114,7 +114,9 @@ export default function HomeBlogPage() {
         <Modal.Body>
           <UserCreateBlog
             onSave={(newBlog) => {
-              setBlogs((prev) => [newBlog.blog, ...prev]);
+              if (newBlog.blog?.status === "published") {
+                setBlogs((prev) => [newBlog.blog, ...prev]);
+              }
               setShowAddModal(false);
             }}
           />
