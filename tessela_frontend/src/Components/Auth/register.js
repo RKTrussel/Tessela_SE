@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button, Card, Alert, InputGroup, Row, Col } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import api from '../../api.js';
@@ -14,6 +14,8 @@ export default function Register({ onSwitch, onRegister }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -30,52 +32,81 @@ export default function Register({ onSwitch, onRegister }) {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    
     if (!form.email || !form.password || !form.name || !form.gender) {
+      setLoading(false);
       return setError("Please fill all required fields.");
     }
-    if (form.password.length < 6) return setError("Password must be at least 6 characters.");
-    
+    if (form.password.length < 6) {
+      setLoading(false);
+      return setError("Password must be at least 6 characters.");
+    }
+
     const submitForm = {
       name: form.name.trim(),
       email: form.email.trim(),
       password: form.password.trim(),
-      birthday: `${form.birthday.year}-${form.birthday.month.padStart(2, '0')}-${form.birthday.day.padStart(2, '0')}`,
+      birthday: `${form.birthday.year}-${form.birthday.month.padStart(2, "0")}-${form.birthday.day.padStart(2, "0")}`,
       gender: form.gender.trim(),
-    }
+    };
+
     try {
       const response = await api.post("/register", submitForm);
       if (response.status === 201) {
         setSuccess(true);
+        setNewUserEmail(submitForm.email); // store email for polling
         onRegister?.(form);
-          // redirect to login tab after success
-        setTimeout(() => {
-          onSwitch(); // parent switches to login
-        }, 1500);
       }
     } catch (error) {
-      if (error.response) {
-      if (error.response.status === 422) {
-        // Laravel validation errors
-        console.log("Validation errors:", error.response.data.errors);
+      if (error.response?.status === 422) {
         setError(error.response.data.message || "Validation error. Please check your input.");
-        return;
       } else {
-        // Other errors (500, 401, etc.)
-        console.error("Server error:", error.response.data);
+        setError("Server error. Please try again later.");
       }
-    } else {
-      console.error("Network error:", error.message);
+    } finally {
+      setLoading(false);
     }
-  }
   };
+
+  // 🔄 Poll backend every 5s to check if user verified
+  useEffect(() => {
+    let interval;
+    if (success && newUserEmail) {
+      interval = setInterval(async () => {
+        try {
+          const { data } = await api.get(`/check-verified?email=${newUserEmail}`);
+          if (data.verified) {
+            clearInterval(interval);
+            setLoading(false); // stop spinner
+            onSwitch();        // redirect to login
+          }
+        } catch (e) {
+          console.error("Polling failed", e);
+        }
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [success, newUserEmail, onSwitch]);
 
   return (
     <Card className="p-3">
       <h5 className="mb-3 text-center">Create an Account</h5>
       {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">Registration successful! You can now log in.</Alert>}
+      {success && (
+        <Alert variant="success" className="d-flex align-items-center">
+          {loading ? (
+            <div
+              className="spinner-border text-success me-2"
+              role="status"
+              style={{ width: "1.5rem", height: "1.5rem" }}
+            />
+          ) : (
+            <span className="text-success me-2">✅</span>
+          )}
+          Registration successful! Please check your email to verify your account before logging in.
+        </Alert>
+      )}
       <Form onSubmit={submit}>
         <Form.Group className="mb-3">
           <Form.Label>Email Address *</Form.Label>
@@ -150,40 +181,20 @@ export default function Register({ onSwitch, onRegister }) {
           <Form.Label>Birthday</Form.Label>
           <Row>
             <Col>
-              <Form.Control
-                type="number"
-                name="day"
-                placeholder="DD"
-                value={form.birthday.day}
-                onChange={onChange}
-                min="1"
-                max="31"
-              />
+              <Form.Control type="number" name="day" placeholder="DD" value={form.birthday.day} onChange={onChange} min="1" max="31" />
             </Col>
             <Col>
-              <Form.Control
-                type="number"
-                name="month"
-                placeholder="MM"
-                value={form.birthday.month}
-                onChange={onChange}
-                min="1"
-                max="12"
-              />
+              <Form.Control type="number" name="month" placeholder="MM" value={form.birthday.month} onChange={onChange} min="1" max="12" />
             </Col>
             <Col>
-              <Form.Control
-                type="number"
-                name="year"
-                placeholder="YYYY"
-                value={form.birthday.year}
-                onChange={onChange}
-              />
+              <Form.Control type="number" name="year" placeholder="YYYY" value={form.birthday.year} onChange={onChange} />
             </Col>
           </Row>
         </Form.Group>
 
-        <Button type="submit" className="w-100 mt-2">CONFIRM</Button>
+        <Button type="submit" className="w-100 mt-2">
+          CONFIRM
+        </Button>
 
         <div className="text-center mt-3">
           <small>
@@ -193,7 +204,6 @@ export default function Register({ onSwitch, onRegister }) {
           </small>
         </div>
       </Form>
-
     </Card>
   );
 }

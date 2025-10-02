@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button, Card, Alert, InputGroup } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import api from '../../api.js';
@@ -12,6 +12,14 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("verified") === "1") {
+      setVerified(true);
+    }
+  }, [location]);
 
   const onChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,13 +47,24 @@ export default function Login() {
         navigate(target, { replace: true });
       }
     } catch (err) {
-      setError("Login failed. Please try again.");
+      if (err.response) {
+        if (err.response.status === 403 && err.response.data.error?.includes("verify")) {
+          setError("Please verify your email before logging in. Check your inbox.");
+        } else if (err.response.status === 401) {
+          setError("Invalid email or password.");
+        } else {
+          setError(err.response.data.error || "Login failed. Please try again.");
+        }
+      } else {
+        setError("Network error. Please try again.");
+      }
     }
   };
 
   return (
     <Card className="p-3">
       <h5 className="mb-3">Log in to your account</h5>
+      {verified && <Alert variant="success">✅ Your email has been verified. You can now log in!</Alert>}
       {error && <Alert variant="danger">{error}</Alert>}
       <Form onSubmit={submit}>
         <Form.Group className="mb-3">

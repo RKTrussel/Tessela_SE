@@ -39,7 +39,7 @@ Route::get('/campaigns/{campaign:campaign_id}', [CampaignController::class, 'sho
 
 Route::post('/products', [AdminController::class, 'addItem']);
 Route::put('/products/{product}', [AdminController::class, 'updateItem']);
-Route::delete('/products/{product}', [AdminController::class, 'destroyItem']);
+Route::delete('/products/{product}', [AdminController::class, 'deleteItem']);
 
 Route::get('/products', [ProductController::class, 'getDetails']);
 Route::get('/products/{product_id}/related', [ProductController::class, 'related']);
@@ -69,9 +69,16 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
     if (! $user->hasVerifiedEmail()) {
         $user->markEmailAsVerified();
     }
-
-    return response()->json(['message' => 'Email verified successfully!']);
+    
+    return redirect('http://localhost:3000/auth?verified=1');
 })->middleware('signed')->name('verification.verify');
+
+Route::get('/check-verified', function (Request $request) {
+    $user = \App\Models\User::where('email', $request->query('email'))->first();
+    return response()->json([
+        'verified' => $user && $user->email_verified_at !== null
+    ]);
+});
 
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
