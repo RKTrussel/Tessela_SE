@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\BlogImage;
 use App\Models\Comment;
 use App\Models\Like;
+use App\Models\User; 
 
 class Blog extends Model
 {
     protected $primaryKey = 'blog_id';
     public $incrementing = true;    
     protected $keyType = 'int';       
-    protected $fillable = ['title', 'author', 'content', 'date', 'status'];
+    protected $fillable = ['title', 'author', 'content', 'date', 'status', 'user_id'];
 
     public function images()
     {
@@ -32,5 +33,10 @@ class Blog extends Model
     public function getRouteKeyName()
     {
         return 'blog_id';
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'account_id');
     }
 }

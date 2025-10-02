@@ -52,6 +52,9 @@ Route::get('/products/{id}', [UserController::class, 'viewItemDetails']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::patch('/blogs/{id}/approve', [BlogController::class, 'approve']);
+Route::patch('/blogs/{id}/reject', [BlogController::class, 'reject']);
+
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
     Log::info('Verification attempt (User model)', ['id' => $id, 'hash' => $hash]);
 

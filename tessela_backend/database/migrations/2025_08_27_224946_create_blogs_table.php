@@ -10,12 +10,17 @@ return new class extends Migration
     {
         Schema::create('blogs', function (Blueprint $table) {
             $table->id('blog_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('title');
             $table->string('author');
             $table->text('content');
             $table->date('date');
-            $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->enum('status', ['draft', 'published', 'rejected'])->default('draft');
             $table->timestamps();
+
+            $table->foreign('user_id')
+                  ->references('account_id')->on('accounts')
+                  ->onDelete('cascade');
         });
     }
 

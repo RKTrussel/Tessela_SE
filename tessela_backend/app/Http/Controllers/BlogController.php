@@ -3,9 +3,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Blog;
+use App\Models\User;
 use App\Models\BlogImage;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Notifications\BlogApproved;
+use App\Notifications\BlogRejected;
 
 class BlogController extends Controller
 {
@@ -85,7 +88,7 @@ class BlogController extends Controller
             'author'    => 'required|string|max:255',
             'content'   => 'required|string',
             'date'      => 'required|string',
-            'status' => 'required|in:draft,published',
+            'status'    => 'required|in:draft,published',
             'images.*'  => 'nullable|image|max:2048',
         ]);
 
@@ -95,7 +98,14 @@ class BlogController extends Controller
             return response()->json(['error' => 'Invalid date format'], 422);
         }
 
+        $user = $request->user(); // ✅ logged-in user
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized. Please log in.'], 401);
+        }
+
         $blog = Blog::create([
+            'user_id' => $user->account_id,
             'title'   => $request->title,
             'author'  => $request->author,
             'content' => $request->content,
@@ -199,5 +209,31 @@ class BlogController extends Controller
             'message' => 'Blog updated successfully',
             'blog'    => $blog,
         ]);
+    }
+
+    public function approve($id)
+    {
+        $blog = Blog::with('user')->findOrFail($id);
+        $blog->status = 'published';
+        $blog->save();
+
+        if ($blog->user) {
+            $blog->user->notify(new BlogApproved($blog));
+        }
+
+        return response()->json(['message' => 'Blog approved and author notified']);
+    }
+
+    public function reject($id)
+    {
+        $blog = Blog::with('user')->findOrFail($id);
+        $blog->status = 'rejected';
+        $blog->save();
+
+        if ($blog->user) {
+            $blog->user->notify(new BlogRejected($blog));
+        }
+
+        return response()->json(['message' => 'Blog rejected and author notified']);
     }
 }

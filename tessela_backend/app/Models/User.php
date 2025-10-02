@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Cart;
+use App\Models\Blog; 
 
 class User extends Account
 {
@@ -16,6 +17,12 @@ class User extends Account
     protected $table = 'accounts';
 
     protected $fillable = ['name','email','password','role','gender','birthday'];
+    
+    public function blogs()
+    {
+        return $this->hasMany(Blog::class, 'user_id', 'account_id');
+    }
+
 
     public function carts()
     {
