@@ -70,7 +70,7 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
         $user->markEmailAsVerified();
     }
     
-    return redirect('http://localhost:3000/auth?verified=1');
+    return response()->json(['message' => 'Email verified successfully!']);
 })->middleware('signed')->name('verification.verify');
 
 Route::get('/check-verified', function (Request $request) {
