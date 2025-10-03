@@ -48,6 +48,6 @@ class BlogSeeder extends Seeder
             }
         }
 
-        $this->command->info("Blogs seeded" . ($user ? " and linked to user: {$user->email}" : " (no user attached)"));
+        // $this->command->info("Blogs seeded" . ($user ? " and linked to user: {$user->email}" : " (no user attached)"));
     }
 }
