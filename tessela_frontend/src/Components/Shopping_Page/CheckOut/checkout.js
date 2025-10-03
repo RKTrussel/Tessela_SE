@@ -171,14 +171,27 @@ export default function Checkout() {
                     ))}
                   </Form.Select>
 
-                  <Button variant="outline-primary" size="sm" onClick={() => navigate("/account")}>
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => navigate("/account")}
+                  >
                     Manage Addresses
                   </Button>
                 </>
               ) : (
-                <p>
-                  No address found. <Link to="/account">Add one here</Link>
-                </p>
+                <Alert variant="warning" className="d-flex justify-content-between align-items-center">
+                  <div>
+                    🚨 No shipping address found. Please add one before checking out.
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => navigate("/account")}
+                  >
+                    Add Address
+                  </Button>
+                </Alert>
               )}
             </Card.Body>
           </Card>
