@@ -24,7 +24,10 @@ const AddCampaign = () => {
     start_date: today,
     end_date: defaultEnd,
     images: [],
+    recipient: "", // 👈 new field for foundation/person
   });
+
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -92,6 +95,19 @@ const AddCampaign = () => {
                   placeholder="Describe your campaign..."
                   name="description"
                   value={campaignData.description}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+
+              {/* Recipient / Beneficiary */}
+              <Form.Group className="mb-3">
+                <Form.Label>Recipient / Beneficiary</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter recipient name (e.g., Red Cross Foundation)"
+                  name="recipient"
+                  value={campaignData.recipient}
                   onChange={handleChange}
                   required
                 />

@@ -5,14 +5,16 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import ListGroup from "react-bootstrap/ListGroup";
-import InputGroup from "react-bootstrap/InputGroup";
+import Carousel from "react-bootstrap/Carousel";
+
+import DonateForm from "./DonateForm";
+import RecentDonations from "./RecentDonations";
+import { fmtDate, fmtMoneyNoDecimals, statusColor } from "./utils";
 
 export default function CampaignDonate({ campaignId }) {
   const [campaign, setCampaign] = useState(null);
@@ -48,7 +50,7 @@ export default function CampaignDonate({ campaignId }) {
 
   useEffect(() => {
     fetchAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [campaignId]);
 
   const pct = useMemo(() => {
@@ -88,6 +90,9 @@ export default function CampaignDonate({ campaignId }) {
         <Col>
           <h1 className="h3 mb-1">{campaign.name}</h1>
           <div className="text-muted">
+            Recipient: <strong>{campaign.recipient}</strong>
+          </div>
+          <div className="text-muted">
             From {fmtDate(campaign.start_date)} to {fmtDate(campaign.end_date)} ·{" "}
             <Badge bg={statusColor(campaign.status)} className="text-uppercase">
               {campaign.status}
@@ -95,28 +100,55 @@ export default function CampaignDonate({ campaignId }) {
           </div>
         </Col>
         <Col xs="auto">
-            <Button variant="secondary" onClick={() => navigate(-1)}>
-                ← Back
-            </Button>
+          <Button variant="secondary" onClick={() => navigate(-1)}>
+            ← Back
+          </Button>
         </Col>
       </Row>
 
       <Row className="g-4">
         <Col md={7}>
+          <Card className="shadow-sm mb-4">
+            {campaign.images?.length > 0 && (
+              campaign.images.length === 1 ? (
+                <Card.Img
+                  variant="top"
+                  src={`${(api.defaults.baseURL || "").replace(/\/api\/?$/, "")}/storage/${campaign.images[0].image_path}`}
+                  alt={campaign.name}
+                  style={{ maxHeight: "300px", objectFit: "cover" }}
+                />
+              ) : (
+                <Carousel interval={4000} fade>
+                  {campaign.images.map((img, idx) => (
+                    <Carousel.Item key={idx}>
+                      <img
+                        src={`${(api.defaults.baseURL || "").replace(/\/api\/?$/, "")}/storage/${img.image_path}`}
+                        alt={`${campaign.name} ${idx + 1}`}
+                        className="d-block w-100"
+                        style={{ maxHeight: "300px", objectFit: "cover" }}
+                      />
+                    </Carousel.Item>
+                  ))}
+                </Carousel>
+              )
+            )}
+            <Card.Body>
+              <Card.Text>{campaign.description}</Card.Text>
+            </Card.Body>
+          </Card>
+
           <Card className="shadow-sm">
             <Card.Body>
-              <Card.Text className="mb-3">{campaign.description}</Card.Text>
-
               <div className="mb-2">
                 <ProgressBar now={pct} animated={pct > 0 && pct < 100} />
               </div>
               <div className="d-flex justify-content-between small mb-3">
-                <span>₱{fmtMoney(progress.raised)} raised</span>
+                <span>₱{fmtMoneyNoDecimals(progress.raised)} raised</span>
                 <span className="text-muted">{pct}% funded</span>
-                <span>Goal: ₱{fmtMoney(campaign.goalAmount)}</span>
+                <span>Goal: ₱{fmtMoneyNoDecimals(campaign.goalAmount)}</span>
               </div>
 
-              <DonateForm campaignId={campaignId} onDone={fetchAll} />
+              <DonateForm campaignId={campaignId} onDone={fetchAll} goal={campaign.goalAmount} />
             </Card.Body>
           </Card>
         </Col>
@@ -132,191 +164,4 @@ export default function CampaignDonate({ campaignId }) {
       </Row>
     </Container>
   );
-}
-
-/* ---------- Donate Form ---------- */
-/* ---------- Donate Form ---------- */
-function DonateForm({ campaignId, onDone }) {
-  const [amount, setAmount] = useState(0);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [lastPreset, setLastPreset] = useState(null);
-
-  const presets = [50, 100, 500, 1000];
-
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!amount || amount <= 0) {
-      setError("Please enter a valid amount");
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    setResult(null);
-    try {
-      const { data } = await api.post(`/campaigns/${campaignId}/donations`, {
-        amount: Number(amount),
-        message,
-      });
-      setResult(data);
-      onDone?.();
-      setMessage("");
-      setAmount(0);
-    } catch (e) {
-      setError(e?.response?.data?.error || e?.message || "Donation failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Form onSubmit={submit} noValidate>
-      <Row className="gy-3">
-        <Col xs={12}>
-          <Form.Label className="fw-semibold">Amount (PHP)</Form.Label>
-          <InputGroup>
-            <InputGroup.Text>₱</InputGroup.Text>
-            <Form.Control
-              type="number"
-              min="1"
-              step="0.01"
-              value={amount || ""}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              required
-              placeholder="Enter amount"
-            />
-          </InputGroup>
-
-          <div className="mt-2 d-flex flex-wrap gap-2">
-            {presets.map((p) => (
-              <Button
-                key={p}
-                variant={lastPreset === p ? "success" : "outline-secondary"}
-                onClick={() => {
-                  setAmount((prev) => Number(prev) + p);
-                  setLastPreset(p);
-                }}
-                type="button"
-              >
-                +₱{fmtMoney(p)}
-              </Button>
-            ))}
-            {amount > 0 && (
-              <Button
-                variant="outline-danger"
-                type="button"
-                onClick={() => {
-                  setAmount(0);
-                  setLastPreset(null); // ✅ proper null
-                }}
-              >
-                Clear
-              </Button>
-              )}
-          </div>
-        </Col>
-
-        <Col xs={12}>
-          <Form.Label>Message (optional)</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={2}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Add a note with your donation"
-          />
-        </Col>
-
-        {error && (
-          <Col xs={12}>
-            <Alert variant="danger" className="mb-0">
-              {error}
-            </Alert>
-          </Col>
-        )}
-        {result && (
-          <Col xs={12}>
-            <Alert
-              variant={result.payment_status === "paid" ? "success" : "warning"}
-              className="mb-0"
-            >
-              {result.payment_status === "paid" ? (
-                <>🎉 Thank you! Ref: <strong>{result.payment_ref}</strong></>
-              ) : (
-                <>Status: <strong>{result.payment_status}</strong></>
-              )}
-            </Alert>
-          </Col>
-        )}
-
-        <Col xs={12} className="d-grid">
-          <Button type="submit" variant="success" disabled={loading}>
-            {loading ? (
-              <>
-                <Spinner animation="border" size="sm" className="me-2" />
-                Processing…
-              </>
-            ) : (
-              "Donate Now"
-            )}
-          </Button>
-        </Col>
-      </Row>
-    </Form>
-  );
-}
-
-/* ---------- Recent Donations ---------- */
-function RecentDonations({ donations }) {
-  if (!donations?.length) {
-    return <div className="text-muted fst-italic">No donations yet.</div>;
-  }
-  return (
-    <ListGroup variant="flush" className="mt-2">
-      {donations.map((d) => (
-        <ListGroup.Item key={d.donation_id} className="py-2">
-          <div className="d-flex justify-content-between">
-            <div>
-              <span className="fw-bold text-success">₱{fmtMoney(d.amount)}</span>
-              <div className="text-muted small">{fmtDate(d.created_at)}</div>
-              {d.message && (
-                <div className="mt-1 fst-italic text-dark">“{d.message}”</div>
-              )}
-            </div>
-          </div>
-        </ListGroup.Item>
-      ))}
-    </ListGroup>
-  );
-}
-
-/* ---------- utils ---------- */
-function statusColor(s) {
-  switch (s) {
-    case "active":
-      return "success";
-    case "draft":
-      return "secondary";
-    case "closed":
-      return "dark";
-    default:
-      return "secondary";
-  }
-}
-function fmtMoney(n) {
-  return Number(n || 0).toLocaleString("en-PH", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-function fmtDate(d) {
-  if (!d) return "";
-  const date = new Date(d);
-  return date.toLocaleDateString("en-PH", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
 }

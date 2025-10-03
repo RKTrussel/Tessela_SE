@@ -13,6 +13,7 @@ class CreateCampaignsTable extends Migration
             $table->string('name');
             $table->decimal('goalAmount', 10, 2);
             $table->text('description');
+            $table->string('recipient')->nullable();
             $table->date('start_date');
             $table->date('end_date');
             $table->string('status')->default('active');

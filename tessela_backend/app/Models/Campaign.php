@@ -17,14 +17,15 @@ class Campaign extends Model
         'name',
         'description',
         'status',
+        'recipient', 
         'start_date',
         'end_date',
         'goalAmount',
-        'closed_at', // ✅ make sure this is fillable
+        'closed_at', 
     ];
 
     protected $casts = [
-        'closed_at' => 'datetime', // ✅ auto-cast to Carbon
+        'closed_at' => 'datetime',
         'start_date' => 'date',
         'end_date'   => 'date',
     ];

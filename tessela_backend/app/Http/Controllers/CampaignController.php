@@ -26,10 +26,11 @@ class CampaignController extends Controller
             }], 'amount')
             ->latest();
 
-        return $q->get([
-            'campaign_id','name','description','status',
-            'start_date','end_date','goalAmount',
+       return $q->get([
+        'campaign_id','name','description','status',
+        'start_date','end_date','goalAmount','recipient',
         ]);
+
     }
 
     // GET /api/campaigns/{campaign}
@@ -51,6 +52,7 @@ class CampaignController extends Controller
             'name'        => ['required','string','max:255'],
             'goalAmount'  => ['required','numeric','min:1'],
             'description' => ['required','string'],
+            'recipient'    => ['required','string','max:255'],
             'start_date'  => ['required','date'],
             'end_date'    => ['required','date','after_or_equal:start_date'],
             'status'      => ['nullable', Rule::in(['active','draft','closed'])],
@@ -86,6 +88,7 @@ class CampaignController extends Controller
             'name'        => ['sometimes','string','max:255'],
             'goalAmount'  => ['sometimes','numeric','min:1'],
             'description' => ['sometimes','string'],
+            'recipient'   => ['sometimes','string','max:255'],
             'start_date'  => ['sometimes','date'],
             'end_date'    => ['sometimes','date','after_or_equal:start_date'],
             'status'      => ['sometimes', Rule::in(['active','draft','closed'])],
