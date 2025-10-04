@@ -17,7 +17,6 @@ const MyOrders = () => {
         params: {
           status: status !== "All" ? status : undefined,
           order_id: orderId || undefined,
-          
           priority: shippingPriority !== "All" ? shippingPriority : undefined,
         },
       });
@@ -36,7 +35,7 @@ const MyOrders = () => {
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       await api.patch(`/admin/orders/${orderId}/status`, { status: newStatus });
-      fetchOrders(); 
+      fetchOrders();
     } catch (err) {
       console.error("Failed to update status:", err);
     }
@@ -61,6 +60,9 @@ const MyOrders = () => {
               <Nav.Item>
                 <Nav.Link eventKey="processed">Processed</Nav.Link>
               </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="delivered">Completed</Nav.Link>
+              </Nav.Item>
             </Nav>
           </Tab.Container>
         </Col>
@@ -78,7 +80,12 @@ const MyOrders = () => {
           />
         </Col>
         <Col md={8} className="d-flex flex-row gap-2 justify-content-end">
-          <Button variant="outline-secondary" onClick={() => { setShippingPriority("All"); setOrderId(""); }}>Reset</Button>
+          <Button
+            variant="outline-secondary"
+            onClick={() => { setShippingPriority("All"); setOrderId(""); }}
+          >
+            Reset
+          </Button>
         </Col>
       </Row>
 
@@ -103,8 +110,6 @@ const MyOrders = () => {
                     <div>
                       <div style={{ fontSize: "48px" }}>📦</div>
                       No Orders Found
-                      <div className="mt-2">
-                      </div>
                     </div>
                   </td>
                 </tr>
@@ -120,16 +125,39 @@ const MyOrders = () => {
                       ))}
                     </td>
                     <td>₱{order.total}</td>
-                    <td>{order.status}</td>
+                    <td className="text-capitalize">{order.status}</td>
                     <td>{new Date(order.created_at).toLocaleString()}</td>
-                    <td>
-                      {order.status !== "processed" && (
+                    <td className="d-flex gap-2">
+                      {/* ✅ Mark as Processed */}
+                      {order.status === "pending" && (
                         <Button
                           size="sm"
                           variant="success"
                           onClick={() => handleUpdateStatus(order.order_id, "processed")}
                         >
                           Mark as Processed
+                        </Button>
+                      )}
+
+                      {/* ✅ Mark as Completed (Delivered) */}
+                      {order.status === "processed" && (
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          onClick={() => handleUpdateStatus(order.order_id, "delivered")}
+                        >
+                          Mark as Completed
+                        </Button>
+                      )}
+
+                      {/* Optional Revert */}
+                      {order.status === "delivered" && (
+                        <Button
+                          size="sm"
+                          variant="outline-secondary"
+                          onClick={() => handleUpdateStatus(order.order_id, "processed")}
+                        >
+                          Revert
                         </Button>
                       )}
                     </td>

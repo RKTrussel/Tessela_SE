@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\Product;
 
 class OrderController extends Controller
 {
@@ -15,7 +15,7 @@ class OrderController extends Controller
     {
         $account = $request->user();
 
-        Log::info('Incoming address request:', $request->all());
+        Log::info('Incoming order request:', $request->all());
 
         $data = $request->validate([
             'items' => 'required|array|min:1',
@@ -39,12 +39,6 @@ class OrderController extends Controller
 
         $order = DB::transaction(function () use ($account, $data) {
             $cart = $account->carts()->latest()->first();
-            
-            Log::info('Resolved cart in OrderController@store:', [
-                'account_id' => $account->account_id,
-                'cart'       => $cart,
-                'cart_id'    => $cart?->cart_id,
-            ]);
 
             $order = Order::create([
                 'account_id'     => $account->account_id,
@@ -71,59 +65,68 @@ class OrderController extends Controller
                     'price'      => $item['price'],
                 ]);
 
-                // 🔹 Decrement stock
+                // 🔹 Update product stock safely
                 $product = Product::find($item['product_id']);
                 if ($product) {
-                    // Prevent negative stock
                     if ($product->stock < $item['quantity']) {
                         throw new \Exception("Not enough stock for product {$product->name}");
                     }
-
                     $product->decrement('stock', $item['quantity']);
                 }
             }
 
-            // remove purchased items from cart
+            // 🔹 Remove purchased items from cart
             if ($cart) {
                 $cart->items()->detach(collect($data['items'])->pluck('product_id'));
             }
 
-
-            return $order->load('items.product');
+            return $order->load('items.product.images');
         });
 
         return response()->json([
             'message' => 'Order placed successfully!',
-            'order' => $order,
+            'order'   => $order,
         ], 201);
     }
 
-   public function index(Request $request)
+    public function index(Request $request)
     {
         $account = $request->user();
 
-        $query = Order::with('items.product')
-            ->orderByDesc('created_at');
+        $query = Order::with([
+            'items.product' => function ($q) use ($account) {
+                // Eager-load product images
+                $q->with('images');
 
+                // ✅ Include only the logged-in user's review (if any)
+                $q->with(['reviews' => function ($r) use ($account) {
+                    $r->where('user_id', $account->account_id)
+                      ->select('review_id', 'product_id', 'user_id', 'rating', 'comment', 'created_at');
+                }]);
+            }
+        ])->orderByDesc('created_at');
+
+        // Restrict to own orders (unless admin)
         if ($account->role !== 'admin') {
             $query->where('account_id', $account->account_id);
         }
 
+        // Handle filters
         $statusMap = [
             'To Ship'   => 'pending',
             'Processed' => 'processed',
         ];
 
-        if ($request->has('status') && $request->status !== 'All') {
+        if ($request->filled('status') && $request->status !== 'All') {
             $mappedStatus = $statusMap[$request->status] ?? $request->status;
             $query->where('status', $mappedStatus);
         }
 
-        if ($request->has('order_id')) {
+        if ($request->filled('order_id')) {
             $query->where('order_id', $request->order_id);
         }
 
-        if ($request->has('priority') && $request->priority !== 'All') {
+        if ($request->filled('priority') && $request->priority !== 'All') {
             if ($request->priority === 'Ship By Today') {
                 $query->whereDate('created_at', today());
             } elseif ($request->priority === 'Ship By Tomorrow') {
@@ -131,25 +134,31 @@ class OrderController extends Controller
             }
         }
 
-
         return response()->json($query->get());
     }
-
 
     public function show(Order $order, Request $request)
     {
         $account = $request->user();
+
         if ($order->account_id !== $account->account_id) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
-        return response()->json($order->load('items.product'));
+        // ✅ Load images and only current user's review
+        $order->load([
+            'items.product.images',
+            'items.product.reviews' => function ($r) use ($account) {
+                $r->where('user_id', $account->account_id)
+                  ->select('review_id', 'product_id', 'user_id', 'rating', 'comment', 'created_at');
+            },
+        ]);
+
+        return response()->json($order);
     }
 
     public function updateStatus(Request $request, Order $order)
     {
-        $account = $request->user();
-
         $request->validate([
             'status' => 'required|string|in:pending,processed,shipped,delivered',
         ]);
@@ -159,8 +168,7 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order status updated successfully',
-            'order'   => $order->fresh('items.product'),
+            'order'   => $order->fresh('items.product.images'),
         ]);
     }
-
 }

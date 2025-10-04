@@ -8,6 +8,8 @@ import Navbar from "../Navbar/Navbar";
 import SecondNavbar from "../Navbar/SecondNavbar";
 import AddressManagement from "../Home_Address/addressManagement";
 import ProfileManagement from "../Home_Address/profileManagement";
+import MyOrderHistory from "../Home_Address/myOrderHistory";
+
 
 export default function AccountContainer() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -35,6 +37,13 @@ export default function AccountContainer() {
                     >
                     Addresses
                     </ListGroup.Item>
+                    <ListGroup.Item
+                      action
+                      active={activeTab === "orders"}
+                      onClick={() => setActiveTab("orders")}
+                    >
+                      My Orders
+                    </ListGroup.Item>
                 </ListGroup>
                 </Col>
 
@@ -42,6 +51,7 @@ export default function AccountContainer() {
                 <Col md={9}>
                 {activeTab === "profile" && <ProfileManagement />}
                 {activeTab === "addresses" && <AddressManagement />}
+                {activeTab === "orders" && <MyOrderHistory />}
                 </Col>
             </Row>
         </Container>
