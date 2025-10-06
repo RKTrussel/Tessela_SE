@@ -10,6 +10,7 @@ import Hero from '../Hero/Hero'
 import HeroBlog from '../Hero/HeroBlog';
 import HeroMarket from '../Hero/HeroMarket'; 
 import HeroCrowdFund from '../Hero/HeroCrowdFund';
+import HeroAbout from '../Hero/HeroAbout';
 
 import "./HomePage.css";
 
@@ -36,6 +37,9 @@ function homePage() {
             </Carousel.Item>
             <Carousel.Item>
               <HeroCrowdFund />
+            </Carousel.Item>
+            <Carousel.Item>
+              <HeroAbout />
             </Carousel.Item>
           </Carousel>
           <div className="dimming-div"> </div>
