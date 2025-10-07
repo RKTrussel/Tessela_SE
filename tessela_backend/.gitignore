@@ -4,6 +4,7 @@
 /public/storage
 !/public/storage/seed-images
 !/public/storage/seed-product-images
+!/public/storage/seed-campaign-images
 /storage/*.key
 /vendor
 .env
