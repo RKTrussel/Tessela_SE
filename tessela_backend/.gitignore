@@ -2,9 +2,9 @@
 /public/build
 /public/hot
 /public/storage
-!/public/storage/seed-images
-!/public/storage/seed-product-images
-!/public/storage/seed-campaign-images
+!storage/app/public/seed-images/
+!storage/app/public/seed-product-images/
+!storage/app/public/seed-campaign-images/
 /storage/*.key
 /vendor
 .env
