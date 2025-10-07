@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button, Image, Carousel, Form, ListGroup, Spinner } from "react-bootstrap";
 import api from "../../api";
-import './BlogDetails.css';
+import "./BlogDetails.css";
 
-export default function BlogDetail({ post, onBack }) {
-  const safePost = post ?? {};
-  const blogId = safePost.blog_id;
+export default function BlogDetail({ post: propPost, onBack }) {
+  const { blogId: routeId } = useParams();
+  const navigate = useNavigate();
 
-  const [likes, setLikes] = useState(safePost.likes_count ?? 0);
+  const [post, setPost] = useState(propPost ?? null);
+  const [loadingPost, setLoadingPost] = useState(!propPost);
+
+  const [likes, setLikes] = useState(propPost?.likes_count ?? 0);
   const [liked, setLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
 
@@ -17,38 +21,52 @@ export default function BlogDetail({ post, onBack }) {
   const [cmtSubmitting, setCmtSubmitting] = useState(false);
   const [cmtError, setCmtError] = useState("");
 
+  const blogId = propPost?.blog_id ?? routeId;
+
+  // 🔹 Fetch blog data if loaded via route
   useEffect(() => {
     let isMounted = true;
-    const load = async () => {
+    const fetchPost = async () => {
+      if (propPost || !blogId) return;
+      try {
+        setLoadingPost(true);
+        const { data } = await api.get(`/blogs/${blogId}`);
+        if (isMounted) setPost(data);
+        if (typeof data.likes_count === "number") setLikes(data.likes_count);
+        if (typeof data.liked === "boolean") setLiked(data.liked);
+      } catch (error) {
+        console.error("Failed to load blog:", error);
+      } finally {
+        if (isMounted) setLoadingPost(false);
+      }
+    };
+    fetchPost();
+    return () => (isMounted = false);
+  }, [blogId, propPost]);
+
+  // 🔹 Fetch comments
+  useEffect(() => {
+    let isMounted = true;
+    const loadComments = async () => {
       if (!blogId) {
         setCmtLoading(false);
         return;
       }
       try {
         setCmtLoading(true);
-        const [cmtRes, blogRes] = await Promise.allSettled([
-          api.get(`/blogs/${blogId}/comments`),
-          api.get(`/blogs/${blogId}`),
-        ]);
-
-        if (isMounted && cmtRes.status === "fulfilled") {
-          setComments(cmtRes.value.data || []);
-        }
-        if (isMounted && blogRes.status === "fulfilled") {
-          const data = blogRes.value.data || {};
-          if (typeof data.likes_count === "number") setLikes(data.likes_count);
-          if (typeof data.liked === "boolean") setLiked(data.liked);
-        }
+        const { data } = await api.get(`/blogs/${blogId}/comments`);
+        if (isMounted) setComments(data || []);
+      } catch (error) {
+        console.error("Failed to load comments:", error);
       } finally {
         if (isMounted) setCmtLoading(false);
       }
     };
-    load();
-    return () => {
-      isMounted = false;
-    };
+    loadComments();
+    return () => (isMounted = false);
   }, [blogId]);
 
+  // 🔹 Like handler
   const handleLike = async () => {
     if (likeLoading || !blogId) return;
     setLikeLoading(true);
@@ -66,6 +84,7 @@ export default function BlogDetail({ post, onBack }) {
     }
   };
 
+  // 🔹 Comment submit
   const submitComment = async (e) => {
     e.preventDefault();
     setCmtError("");
@@ -103,14 +122,28 @@ export default function BlogDetail({ post, onBack }) {
     }
   };
 
-  if (!post) return <p>No post selected.</p>;
+  // 🔹 Handle loading / missing post
+  if (loadingPost)
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" />
+      </Container>
+    );
+
+  if (!post) return <p className="text-center mt-5">Blog not found.</p>;
 
   return (
     <Container className="mt-4">
       <Row className="justify-content-center">
         <Col md={10} lg={8}>
-          <h1 className="display-4 fw-bold text-center" style={{fontFamily: "Merriweather"}}>{post.title}</h1>
-          {/* Hero image */}
+          <h1
+            className="display-4 fw-bold text-center"
+            style={{ fontFamily: "Merriweather" }}
+          >
+            {post.title}
+          </h1>
+
+          {/* Hero Image */}
           {post.images?.length > 0 && (
             <Image
               src={post.images[0]?.url}
@@ -119,10 +152,9 @@ export default function BlogDetail({ post, onBack }) {
             />
           )}
 
-          {/* Title + Meta */}
-          
           <p className="blog-meta">
-            By <strong>{post.author}</strong> • {post.date}
+            By <strong>{post.author}</strong> •{" "}
+            {new Date(post.date).toLocaleDateString()}
           </p>
 
           {/* Like + Back */}
@@ -143,18 +175,36 @@ export default function BlogDetail({ post, onBack }) {
             <span className="text-muted">
               {likes} {likes === 1 ? "like" : "likes"}
             </span>
-            <Button variant="secondary" onClick={onBack}>
-              ← Back to Home
+            <Button
+              variant="secondary"
+              onClick={() => {
+                const currentPath = window.location.pathname;
+                if (currentPath.startsWith("/blogs/")) {
+                  // Example: /blogs/1, /blogs/23, etc. — go back
+                  navigate(-1);
+                } else if (currentPath === "/blog") {
+                  // On the blog listing page — just reset (reload)
+                  window.location.reload();
+                } else if (onBack) {
+                  // If inline (like HomeBlogPage), use provided onBack handler
+                  onBack();
+                } else {
+                  // Default fallback
+                  navigate(-1);
+                }
+              }}
+            >
+              ← Back
             </Button>
           </div>
 
-          {/* Article Content */}
+          {/* Content */}
           <div
             className="blog-content"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
-          {/* Extra images carousel */}
+          {/* Extra Images Carousel */}
           {post.images?.length > 1 && (
             <Carousel className="mb-4 shadow-lg" variant="dark">
               {post.images.slice(1).map((img, index) => (
@@ -170,7 +220,7 @@ export default function BlogDetail({ post, onBack }) {
             </Carousel>
           )}
 
-          {/* Comments Section */}
+          {/* Comments */}
           <h4 className="mt-5 mb-3">Comments</h4>
           <Form onSubmit={submitComment} className="mb-3">
             <Form.Group className="mb-2">

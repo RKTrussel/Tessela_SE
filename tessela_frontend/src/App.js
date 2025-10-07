@@ -23,6 +23,7 @@ import RequireRole from './Components/Auth/Guards/RequireRole';
 import GuestOnly from './Components/Auth/Guards/GuestOnly';
 
 import SearchContainer from './Components/Shopping_Page/Containers/searchContainer';
+import BlogDetail from './Components/Blog_Page/BlogDetails';
 
 function CampaignDonateRoute() {
   const { id } = useParams();
@@ -71,6 +72,7 @@ function App() {
               <Route path="/dashboard/myCampaign/addCampaign" element={<AddCampaignContainer />} />
               <Route path="/dashboard/myBlog" element={<MyBlogContainer />} />
               <Route path="/dashboard/myBlog/addBlogs" element={<AddBlogContainer />} />
+              <Route path="/blogs/:blogId" element={<BlogDetail />} />
             </Route>
           </Route>
         </Routes>
