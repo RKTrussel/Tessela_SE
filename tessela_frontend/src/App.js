@@ -7,6 +7,7 @@ import ItemContainer from './Components/Shopping_Page/Containers/itemContainer';
 import { ShoppingBagContainer , CheckoutContainer  } from './Components/Shopping_Page/Containers/cartCheckoutContainer';
 import MarketPlaceContainer from './Components/Shopping_Page/Containers/marketPlaceContainer';
 import AddressContainer from './Components/Shopping_Page/Containers/addressContainer';
+import AboutPage from './Components/About_Page/AboutPage';
 
 import HomeBlogPage from './Components/Blog_Page/HomeBlogPage';
 
@@ -60,6 +61,7 @@ function App() {
               <Route path="/checkout" element={<CheckoutContainer />} />
               <Route path="/marketplace" element={<MarketPlaceContainer />} />
               <Route path="/account" element={<AddressContainer />} />
+              <Route path="/about" element={<AboutPage />} />
             </Route>
 
             {/* Admin area */}
