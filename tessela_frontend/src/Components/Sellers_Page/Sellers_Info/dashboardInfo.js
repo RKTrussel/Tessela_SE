@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Container, Row, Col, Button, Spinner, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
@@ -9,35 +9,115 @@ const SellerDashboard = () => {
   const [blogs, setBlogs] = useState([]);
   const [loadingCampaigns, setLoadingCampaigns] = useState(true);
   const [loadingBlogs, setLoadingBlogs] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCampaigns = async () => {
-      try {
-        const response = await api.get("/campaigns");
-        setCampaigns(response.data);
-      } catch (error) {
-        console.error("Error fetching campaigns:", error);
-      } finally {
-        setLoadingCampaigns(false);
-      }
-    };
+  /* ---------- helpers ---------- */
+  const hydrateProgress = useCallback(async (list) => {
+    if (!list?.length) return;
+    const ids = list.map((c) => c.campaign_id);
 
-    const fetchBlogs = async () => {
-      try {
-        const response = await api.get("/blogs");
-        setBlogs(response.data);
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
-      } finally {
-        setLoadingBlogs(false);
-      }
-    };
+    try {
+      // Try batch progress
+      const { data } = await api.get("/campaigns/progress", {
+        params: { ids: ids.join(",") },
+      });
 
-    fetchCampaigns();
-    fetchBlogs();
+      const dict = Array.isArray(data)
+        ? data.reduce((acc, x) => {
+            acc[x.campaign_id] = {
+              raised: Number(x.raised || 0),
+              goal: Number(x.goal || 0),
+            };
+            return acc;
+          }, {})
+        : data;
+
+      setCampaigns((prev) =>
+        prev.map((c) => ({
+          ...c,
+          _progress: dict?.[c.campaign_id]
+            ? {
+                raised: Number(dict[c.campaign_id].raised || 0),
+                goal: Number(
+                  dict[c.campaign_id].goal || c.goalAmount || c.goal || 0
+                ),
+              }
+            : c._progress,
+        }))
+      );
+    } catch (_batchErr) {
+      // fallback per campaign
+      const results = await Promise.allSettled(
+        ids.map((id) => api.get(`/campaigns/${id}/donations`))
+      );
+      const byId = {};
+      results.forEach((res, i) => {
+        const id = ids[i];
+        if (res.status === "fulfilled") {
+          const p = res.value?.data?.progress;
+          if (p)
+            byId[id] = {
+              raised: Number(p.raised || 0),
+              goal: Number(p.goal || 0),
+            };
+        }
+      });
+      setCampaigns((prev) =>
+        prev.map((c) => ({
+          ...c,
+          _progress: byId[c.campaign_id]
+            ? byId[c.campaign_id]
+            : c._progress,
+        }))
+      );
+    }
   }, []);
 
+  /* ---------- fetch campaigns ---------- */
+  const fetchCampaigns = useCallback(async () => {
+    setLoadingCampaigns(true);
+    setError(null);
+    try {
+      const { data } = await api.get("/campaigns");
+      const list = Array.isArray(data) ? data : data?.items || [];
+
+      const seeded = list.map((c) => ({
+        ...c,
+        _progress: {
+          raised: Number(c.raisedAmount ?? c.totalRaised ?? 0),
+          goal: Number(c.goalAmount ?? c.goal ?? 0),
+        },
+      }));
+
+      setCampaigns(seeded);
+      await hydrateProgress(seeded);
+    } catch (err) {
+      console.error("Error fetching campaigns:", err);
+      setError(err?.message || "Failed to fetch campaigns");
+    } finally {
+      setLoadingCampaigns(false);
+    }
+  }, [hydrateProgress]);
+
+  const fetchBlogs = useCallback(async () => {
+    setLoadingBlogs(true);
+    try {
+      const { data } = await api.get("/blogs");
+      setBlogs(data);
+    } catch (err) {
+      console.error("Error fetching blogs:", err);
+    } finally {
+      setLoadingBlogs(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCampaigns();
+    fetchBlogs();
+  }, [fetchCampaigns, fetchBlogs]);
+
+  /* ---------- render ---------- */
   return (
     <Container fluid className="p-4" style={{ backgroundColor: "#f8f9fa" }}>
       {/* To Do List Summary */}
@@ -71,20 +151,27 @@ const SellerDashboard = () => {
         </Row>
       </div>
 
-      {/* Admin Campaign Section */}
+      {/* Campaigns Section */}
       <div className="p-4 bg-white rounded shadow-sm mb-5">
         <h5 className="mb-4 text-muted text-uppercase">Campaigns</h5>
+
         {loadingCampaigns ? (
           <Spinner animation="border" size="sm" />
+        ) : error ? (
+          <p className="text-danger">{error}</p>
         ) : campaigns.length > 0 ? (
-          campaigns.map((campaign) => {
-            const raised = campaign.raisedAmount ?? 0;
-            const percent = Math.min((raised / campaign.goalAmount) * 100, 100);
+          campaigns.map((c) => {
+            const raised = Number(c?._progress?.raised ?? 0);
+            const goal = Number(c?._progress?.goal ?? 0);
+            const percent = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
 
             return (
-              <div key={campaign.campaign_id} className="mb-4">
-                <h6>{campaign.name}</h6>
+              <div key={c.campaign_id} className="mb-4">
+                <h6>{c.name}</h6>
                 <CampaignProgress progress={percent} />
+                <small className="text-muted">
+                  ₱{raised.toLocaleString()} raised of ₱{goal.toLocaleString()} ({percent}%)
+                </small>
               </div>
             );
           })
