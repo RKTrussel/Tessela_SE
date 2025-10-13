@@ -57,7 +57,7 @@ export default function UserCreateBlog({ onSave }) {
       formData.append("author", author);
       formData.append("date", date);
       formData.append("content", content);
-      formData.append("status", "draft"); // default for user blogs
+      formData.append("status", "draft");
 
       images.forEach((img) => {
         formData.append("images[]", img);
@@ -69,7 +69,6 @@ export default function UserCreateBlog({ onSave }) {
 
       if (onSave) onSave(res.data);
 
-      // Reset form
       setTitle("");
       setAuthor("");
       setImages([]);

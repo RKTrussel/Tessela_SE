@@ -4,7 +4,7 @@ import api from "../../api";
 import Navbar from "../Shopping_Page/Navbar/Navbar";
 import SecondNavbar from "../Shopping_Page/Navbar/SecondNavbar";
 import BlogDetail from "./BlogDetails";
-import UserCreateBlog from "./Blog_Creation/UserCreateBlog"; // 👈 use the user version
+import UserCreateBlog from "./Blog_Creation/UserCreateBlog";
 import "./HomeBlogPage.css";
 
 export default function HomeBlogPage() {
@@ -13,6 +13,7 @@ export default function HomeBlogPage() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [search, setSearch] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
 
   const stripHtml = (html) => {
     if (!html) return "";
@@ -117,11 +118,32 @@ export default function HomeBlogPage() {
               if (newBlog.blog?.status === "published") {
                 setBlogs((prev) => [newBlog.blog, ...prev]);
               }
+              setToastMsg("Your blog has been submitted! Your account is under review.");
               setShowAddModal(false);
+              setTimeout(() => setToastMsg(""), 5000);
             }}
           />
         </Modal.Body>
       </Modal>
+      
+
+      {toastMsg && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            background: "#198754",
+            color: "white",
+            padding: "12px 18px",
+            borderRadius: "8px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+            zIndex: 9999,
+          }}
+        >
+          {toastMsg}
+        </div>
+      )}
 
       <footer className="bg-dark text-light text-center py-3 mt-4">
         <p className="mb-0">© 2025 My Blog. All rights reserved.</p>
