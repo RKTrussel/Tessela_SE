@@ -12,7 +12,7 @@ class AdminSeeder extends Seeder
     {
         // Create or update a default admin account
         Admin::updateOrCreate(
-            ['email' => 'admin@example.com'],     // unique by email
+            ['email' => 'tallaferkent775@gmail.com'],     // unique by email
             [
                 'name' => 'Super Admin',
                 'password' => Hash::make('password123'), // change this

@@ -23,13 +23,13 @@ class BlogSeeder extends Seeder
         $blogs = json_decode(File::get($jsonpath), true);
 
         // get the seeded user (optional)
-        $user = User::where('email', 'tallaferkent775@gmail.com')->first();
+        $user = User::where('email', 'tallaferkent73@gmail.com')->first();
 
         foreach ($blogs as $blogData) {
             $date = Carbon::createFromFormat('m/d/Y', $blogData['date'])->format('Y-m-d');
 
             $blog = Blog::create([
-                'user_id' => $user?->account_id,   // ✅ attach if exists, else null
+                'user_id' => $user?->account_id,
                 'title'   => $blogData['title'],
                 'author'  => $blogData['author'],
                 'content' => $blogData['content'],

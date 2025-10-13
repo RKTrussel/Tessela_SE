@@ -48,16 +48,43 @@ export default function CampaignDonate({ campaignId }) {
     }
   };
 
-  useEffect(() => {
-    fetchAll();
-    // eslint-disable-next-line
-  }, [campaignId]);
-
   const pct = useMemo(() => {
     const { raised, goal } = progress;
     if (!goal || goal <= 0) return 0;
     return Math.min(100, Math.round((Number(raised) / Number(goal)) * 100));
   }, [progress]);
+
+  const autoCloseCampaign = async () => {
+  try {
+    // prevent duplicate close calls
+    if (!campaign || campaign.status !== "active" || pct < 100) return;
+
+    console.log(`🔒 Auto-closing campaign #${campaign.campaign_id}…`);
+
+    await api.put(`/campaigns/${campaign.campaign_id}`, { status: "closed" });
+    setCampaign((prev) => ({ ...prev, status: "closed" }));
+
+    // Optional: Refresh once to confirm state sync
+    setTimeout(fetchAll, 1000); // fetch again after 1s
+  } catch (err) {
+    console.error("Auto-close failed:", err);
+  }
+};
+
+  // Run only when campaign hits goal and is still active
+  useEffect(() => {
+    if (campaign?.status === "active" && pct >= 100) {
+      autoCloseCampaign();
+    }
+    // Only depend on pct and campaign.status to avoid refetch loops
+    // eslint-disable-next-line
+  }, [pct, campaign?.status]);
+
+
+  useEffect(() => {
+    fetchAll();
+    // eslint-disable-next-line
+  }, [campaignId]);
 
   if (loading) {
     return (
@@ -148,7 +175,7 @@ export default function CampaignDonate({ campaignId }) {
                 <span>Goal: ₱{fmtMoneyNoDecimals(campaign.goalAmount)}</span>
               </div>
 
-              <DonateForm campaignId={campaignId} onDone={fetchAll} goal={campaign.goalAmount} />
+              <DonateForm campaignId={campaignId} onDone={fetchAll} goal={campaign.goalAmount} raised={progress.raised}/>
             </Card.Body>
           </Card>
         </Col>

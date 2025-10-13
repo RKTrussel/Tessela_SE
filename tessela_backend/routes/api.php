@@ -15,6 +15,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ContactController;
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Models\Account;
@@ -54,6 +55,8 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::patch('/blogs/{id}/approve', [BlogController::class, 'approve']);
 Route::patch('/blogs/{id}/reject', [BlogController::class, 'reject']);
+
+Route::post('/contact', [ContactController::class, 'send']);
 
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
     Log::info('Verification attempt (User model)', ['id' => $id, 'hash' => $hash]);

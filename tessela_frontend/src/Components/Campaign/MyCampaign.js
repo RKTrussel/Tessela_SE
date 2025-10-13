@@ -36,8 +36,9 @@ export default function MyCampaign() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
-  const [closing, setClosing] = useState({}); // per-row loading map
+  const [closing, setClosing] = useState({});
   const navigate = useNavigate();
+  const [autoClosed, setAutoClosed] = useState(new Set());
 
   /* ---------- progress hydrator (batch -> per-campaign fallback) ---------- */
   const hydrateProgress = useCallback(async (list) => {
@@ -144,6 +145,39 @@ export default function MyCampaign() {
       throw e1;
     }
   }, []);
+
+  const autoCloseCampaign = useCallback(
+    async (id) => {
+      try {
+        setClosing((m) => ({ ...m, [id]: true }));
+        await requestCloseCampaign(id);
+        setCampaigns((prev) =>
+          prev.map((c) =>
+            c.campaign_id === id ? { ...c, status: "closed" } : c
+          )
+        );
+      } catch (err) {
+        console.error("Auto-close failed for campaign", id, err);
+      } finally {
+        setClosing((m) => ({ ...m, [id]: false }));
+      }
+    },
+    [requestCloseCampaign]
+  );
+
+    useEffect(() => {
+      campaigns.forEach((c) => {
+        const raised = Number(c?._progress?.raised ?? c.raisedAmount ?? 0);
+        const goal = Number(c?._progress?.goal ?? c.goalAmount ?? 0);
+        const percent =
+          goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+
+        if (percent >= 100 && c.status === "active" && !autoClosed.has(c.campaign_id)) {
+          setAutoClosed((prev) => new Set(prev).add(c.campaign_id));
+          autoCloseCampaign(c.campaign_id);
+        }
+      });
+    }, [campaigns, autoCloseCampaign, autoClosed]);
 
   const handleCloseCampaign = useCallback(
     async (id) => {

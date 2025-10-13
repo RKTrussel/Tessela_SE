@@ -3,7 +3,7 @@ import api from "../../api";
 import { Row, Col, Form, InputGroup, Button, Alert, Spinner } from "react-bootstrap";
 import { fmtMoneyNoDecimals } from "./utils";
 
-export default function DonateForm({ campaignId, onDone, goal }) {
+export default function DonateForm({ campaignId, onDone, goal, raised}) {
   const [amount, setAmount] = useState(0);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,10 +23,20 @@ export default function DonateForm({ campaignId, onDone, goal }) {
     return [...new Set(values.filter(v => Number.isFinite(v) && v > 0))];
   }, [goal]);
 
+  const remaining = useMemo(() => {
+    const g = Number(goal) || 0;
+    const r = Number(raised) || 0;
+    return Math.max(0, g - r);
+  }, [goal, raised]);
+
   const submit = async (e) => {
     e.preventDefault();
     if (!amount || amount <= 0) {
       setError("Please enter a valid amount");
+      return;
+    }
+    if (amount > remaining) {
+      setError(`This campaign only needs ₱${fmtMoneyNoDecimals(remaining)} more to reach its goal.`);
       return;
     }
     setLoading(true);
